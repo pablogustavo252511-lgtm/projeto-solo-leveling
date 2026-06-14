@@ -28,7 +28,10 @@ function ensureGeneratedFrontend() {
   }
 
   const pageFile = path.join(generatedPublicPath, "page.html");
-  if (!fs.existsSync(pageFile)) {
+  const shouldWriteFallback = !fs.existsSync(pageFile)
+    || fs.readFileSync(pageFile, "utf8").includes("Frontend fallback gerado pelo servidor");
+
+  if (shouldWriteFallback) {
     fs.writeFileSync(pageFile, `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -36,22 +39,17 @@ function ensureGeneratedFrontend() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solo Leveling - Daily Hunter System</title>
   <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#05070d;color:#eef7ff;font-family:Arial,sans-serif}
-    main{width:min(440px,90vw);padding:32px;border:1px solid rgba(24,216,255,.35);border-radius:8px;background:#0c1220;box-shadow:0 0 32px rgba(24,216,255,.16);text-align:center}
-    h1{font-size:42px;margin:16px 0 8px}
-    p{color:#9db2c8}
-    a{display:inline-block;margin:8px;padding:12px 18px;border:1px solid #18d8ff;border-radius:8px;color:#eef7ff;text-decoration:none;background:linear-gradient(135deg,rgba(24,216,255,.22),rgba(141,92,255,.24))}
-    code{display:block;margin-top:18px;color:#18d8ff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;overflow-x:hidden;background:linear-gradient(rgba(24,216,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(141,92,255,.05) 1px,transparent 1px),radial-gradient(circle at 58% 46%,rgba(24,216,255,.22),transparent 22rem),radial-gradient(circle at 78% 18%,rgba(141,92,255,.2),transparent 26rem),#03060c;background-size:44px 44px,44px 44px,auto,auto,auto;color:#eef7ff;font-family:Arial,sans-serif}body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(3,6,12,.45)),repeating-linear-gradient(180deg,rgba(255,255,255,.025) 0 1px,transparent 1px 4px)}main{min-height:100vh;padding:24px clamp(18px,4vw,64px);display:grid;grid-template-rows:auto 1fr auto;gap:24px}.nav{display:flex;align-items:center;justify-content:space-between;gap:16px}.brand,.actions{display:flex;align-items:center;gap:12px}.mark{display:grid;place-items:center;width:46px;height:46px;border:1px solid #18d8ff;border-radius:8px;color:#18d8ff;font-weight:900;box-shadow:0 0 22px rgba(24,216,255,.35)}.hero{display:grid;align-items:center;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:32px}.eyebrow{color:#18d8ff;text-transform:uppercase;font-size:12px;font-weight:900}.copy h1{margin:8px 0 14px;font-size:clamp(64px,13vw,150px);line-height:.84;text-shadow:0 0 22px rgba(24,216,255,.24)}.copy p{max-width:620px;color:#b5c7da;font-size:clamp(17px,2vw,22px);line-height:1.6}.buttons{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}a{color:#eef7ff;text-decoration:none}.btn{display:inline-flex;justify-content:center;min-width:154px;padding:13px 18px;border:1px solid rgba(24,216,255,.65);border-radius:8px;background:linear-gradient(135deg,rgba(24,216,255,.18),rgba(141,92,255,.22));box-shadow:0 0 18px rgba(24,216,255,.12)}.ghost{background:transparent;border-color:rgba(238,247,255,.22)}.gate{position:relative;display:grid;place-items:center;min-height:520px}.gate:before{content:"";position:absolute;width:min(72vw,540px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 120deg,transparent 0 22%,rgba(24,216,255,.9),transparent 38% 56%,rgba(141,92,255,.8),transparent 76% 100%);filter:drop-shadow(0 0 34px rgba(24,216,255,.3));opacity:.88}.gate:after{content:"";position:absolute;width:min(52vw,380px);aspect-ratio:1;border-radius:50%;border:1px solid rgba(238,247,255,.18);box-shadow:inset 0 0 42px rgba(24,216,255,.18),0 0 58px rgba(141,92,255,.18)}.core{z-index:1;display:grid;place-items:center;width:190px;height:190px;border:1px solid rgba(24,216,255,.55);border-radius:50%;background:rgba(5,7,13,.74);box-shadow:0 0 46px rgba(24,216,255,.25);text-transform:uppercase}.core span,.core small{color:#9db2c8}.core strong{font-size:26px}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.cards article{min-height:145px;border:1px solid rgba(24,216,255,.24);border-radius:8px;background:rgba(12,18,32,.72);box-shadow:0 0 28px rgba(24,216,255,.1);padding:18px}.cards span{color:#18d8ff;font-size:12px;font-weight:900;text-transform:uppercase}.cards strong{display:block;margin:8px 0;font-size:22px}.cards small{color:#9db2c8;line-height:1.55}@media(max-width:900px){.hero{grid-template-columns:1fr}.gate{min-height:360px}.cards{grid-template-columns:1fr}}@media(max-width:620px){.nav{align-items:flex-start;flex-direction:column}.copy h1{font-size:clamp(54px,19vw,86px)}.gate{min-height:290px}.core{width:150px;height:150px}}
   </style>
 </head>
 <body>
   <main>
-    <strong>SL</strong>
-    <h1>Solo Leveling</h1>
-    <p>Daily Hunter System</p>
-    <a href="/login.html">Entrar</a>
-    <a href="/register.html">Criar conta</a>
-    <code>Frontend fallback gerado pelo servidor.</code>
+    <nav class="nav"><a class="brand" href="/"><span class="mark">SL</span><strong>Daily Hunter</strong></a><div class="actions"><a href="/login.html">Entrar</a><a class="btn" href="/register.html">Criar conta</a></div></nav>
+    <section class="hero">
+      <div class="copy"><span class="eyebrow">Sistema do Hunter ativado</span><h1>Solo Leveling</h1><p>Transforme suas missoes diarias em XP, niveis, ranks e batalhas contra bosses.</p><div class="buttons"><a class="btn" href="/register.html">Despertar hunter</a><a class="btn ghost" href="/login.html">Entrar no sistema</a></div></div>
+      <div class="gate" aria-hidden="true"><div class="core"><span>Rank E</span><strong>Nivel 1</strong><small>0 / 100 XP</small></div></div>
+    </section>
+    <section class="cards"><article><span>Missoes</span><strong>XP automatico</strong><small>O sistema analisa a tarefa e define uma recompensa equilibrada.</small></article><article><span>Evolucao</span><strong>Level up</strong><small>Ganhe XP, suba de nivel e avance de Rank E ate Rank S.</small></article><article><span>Penalidade</span><strong>Boss spawn</strong><small>Falhou uma missao importante? Enfrente o boss e recupere progresso.</small></article></section>
   </main>
 </body>
 </html>`);
