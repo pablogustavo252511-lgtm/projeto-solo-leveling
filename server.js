@@ -56,7 +56,10 @@ function copyFrontendSourceToPublic() {
 
 function writeGeneratedPublicFile(relativePath, content) {
   const filePath = path.join(generatedPublicPath, relativePath);
-  if (fs.existsSync(filePath)) return;
+  if (fs.existsSync(filePath)) {
+    const currentContent = fs.readFileSync(filePath, "utf8");
+    if (!currentContent.includes("data-generated-fallback")) return;
+  }
 
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content);
@@ -140,6 +143,14 @@ function generatedAuthPage(type) {
 }
 
 function generatedAppPage(title, message) {
+  const pageKey = ({
+    Dashboard: "dashboard",
+    Desafios: "desafios",
+    Boss: "boss",
+    "Top Hunters": "ranking",
+    Perfil: "perfil"
+  })[title] || "dashboard";
+
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -147,51 +158,259 @@ function generatedAppPage(title, message) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} - Daily Hunter</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 25% 20%,rgba(24,216,255,.16),transparent 28rem),radial-gradient(circle at 80% 10%,rgba(141,92,255,.16),transparent 30rem),#02050b;color:#eef7ff;font-family:Arial,sans-serif}.layout{min-height:100vh;display:grid;grid-template-columns:240px 1fr}.sidebar{padding:22px;border-right:1px solid rgba(24,216,255,.22);background:rgba(2,5,11,.72)}.brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;font-weight:800}.mark{display:grid;place-items:center;width:44px;height:44px;border:1px solid #18d8ff;border-radius:8px;color:#18d8ff}.nav{display:grid;gap:8px;margin-top:42px}.nav a{padding:13px;border-radius:8px;color:#aec2d8;text-decoration:none}.nav a:hover,.nav a.active{background:rgba(24,216,255,.12);color:#fff}.main{padding:clamp(24px,5vw,64px)}.top{display:flex;justify-content:space-between;gap:16px;align-items:center}.pill{padding:8px 12px;border:1px solid rgba(24,216,255,.42);border-radius:999px;color:#18d8ff}.card{margin-top:34px;max-width:860px;padding:26px;border:1px solid rgba(24,216,255,.26);border-radius:10px;background:rgba(12,18,32,.82);box-shadow:0 0 32px rgba(24,216,255,.1)}h1{font-size:clamp(44px,7vw,82px);margin:0 0 12px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.stat{padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.03)}button{padding:10px 14px;border:1px solid rgba(255,255,255,.28);border-radius:8px;background:transparent;color:#fff;cursor:pointer}@media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid rgba(24,216,255,.22)}.stats{grid-template-columns:1fr}}
+    :root{--bg:#03060d;--panel:rgba(10,16,31,.74);--panel-2:rgba(13,22,42,.9);--line:rgba(24,216,255,.24);--line-strong:rgba(24,216,255,.6);--cyan:#18d8ff;--violet:#8d5cff;--white:#edf8ff;--muted:#94aac0;--danger:#ff4f8b;--ok:#2cffad}
+    *{box-sizing:border-box}html{background:var(--bg)}body{margin:0;min-height:100vh;overflow-x:hidden;color:var(--white);font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(rgba(24,216,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(141,92,255,.035) 1px,transparent 1px),radial-gradient(circle at 22% 18%,rgba(24,216,255,.18),transparent 28rem),radial-gradient(circle at 86% 10%,rgba(141,92,255,.18),transparent 34rem),linear-gradient(135deg,#02050b 0%,#050716 46%,#080516 100%);background-size:42px 42px,42px 42px,auto,auto,auto}
+    body:before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(0,0,0,.5)),repeating-linear-gradient(180deg,rgba(255,255,255,.025) 0 1px,transparent 1px 5px)}
+    a{color:inherit;text-decoration:none}.shell{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:270px minmax(0,1fr)}.sidebar{position:sticky;top:0;height:100vh;padding:26px 20px;border-right:1px solid var(--line);background:linear-gradient(180deg,rgba(1,5,12,.88),rgba(4,9,18,.74));backdrop-filter:blur(18px)}.brand{display:flex;align-items:center;gap:13px;font-size:18px;font-weight:900}.mark{display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);letter-spacing:.04em;background:rgba(24,216,255,.07);box-shadow:0 0 26px rgba(24,216,255,.28)}.nav{display:grid;gap:9px;margin-top:44px}.nav a{position:relative;padding:14px 14px;border:1px solid transparent;border-radius:8px;color:#b1c4d8}.nav a:hover,.nav a.active{border-color:rgba(24,216,255,.24);background:linear-gradient(90deg,rgba(24,216,255,.14),rgba(141,92,255,.09));color:#fff;box-shadow:0 0 20px rgba(24,216,255,.07)}.nav a.active:before{content:"";position:absolute;left:8px;top:13px;bottom:13px;width:3px;border-radius:999px;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+    .main{padding:30px clamp(22px,4vw,64px) 54px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}.system{color:var(--cyan);text-transform:uppercase;font-size:12px;font-weight:900;letter-spacing:.08em}.top-actions{display:flex;align-items:center;gap:12px}.rank-pill,.level-pill{padding:10px 13px;border:1px solid rgba(24,216,255,.36);border-radius:999px;background:rgba(24,216,255,.08);color:#dff9ff}.ghost-button,.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 15px;border:1px solid rgba(238,248,255,.25);border-radius:8px;background:rgba(255,255,255,.02);color:#fff;font:inherit;cursor:pointer}.button{border-color:var(--line-strong);background:linear-gradient(135deg,rgba(24,216,255,.18),rgba(141,92,255,.18));box-shadow:0 0 20px rgba(24,216,255,.1)}.danger{border-color:rgba(255,79,139,.54);color:#ffd7e5}.ok{border-color:rgba(44,255,173,.54);color:#dcfff3}
+    .hero-panel{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:24px;align-items:center;padding:30px;border:1px solid var(--line);border-radius:8px;background:linear-gradient(135deg,rgba(13,22,42,.92),rgba(7,11,23,.74));box-shadow:0 24px 70px rgba(0,0,0,.3),0 0 40px rgba(24,216,255,.08)}.hero-panel:after{content:"";position:absolute;right:-120px;top:-140px;width:360px;aspect-ratio:1;border-radius:50%;border:1px solid rgba(24,216,255,.22);box-shadow:inset 0 0 60px rgba(24,216,255,.11),0 0 70px rgba(141,92,255,.14)}h1{position:relative;margin:7px 0 12px;font-size:clamp(48px,7.8vw,96px);line-height:.9;letter-spacing:0;text-shadow:0 0 22px rgba(24,216,255,.18)}.subtitle{position:relative;max-width:760px;margin:0;color:var(--muted);font-size:17px;line-height:1.6}.core{position:relative;z-index:1;display:grid;place-items:center;text-align:center;justify-self:end;width:170px;height:170px;border:1px solid rgba(24,216,255,.5);border-radius:50%;background:radial-gradient(circle,rgba(24,216,255,.13),rgba(5,7,15,.86) 65%);box-shadow:0 0 40px rgba(24,216,255,.22)}.core strong{font-size:34px}.core small{color:var(--muted)}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}.metric,.card,.list-item,.panel{border:1px solid rgba(24,216,255,.2);border-radius:8px;background:var(--panel);box-shadow:0 0 28px rgba(24,216,255,.06)}.metric{padding:17px}.metric span,.label{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:800}.metric strong{display:block;margin-top:8px;font-size:28px}.xp-track{height:10px;margin-top:12px;overflow:hidden;border-radius:999px;background:rgba(238,248,255,.1)}.xp-fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 18px rgba(24,216,255,.5);transition:width .45s ease}.content-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.card{padding:22px}.card h2{margin:0 0 15px;font-size:22px}.list{display:grid;gap:12px}.list-item{padding:15px}.list-item header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}.list-item h3{margin:0;font-size:18px}.list-item p{margin:7px 0;color:#b7c6d5;line-height:1.5}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}.chip{display:inline-flex;align-items:center;padding:6px 9px;border:1px solid rgba(24,216,255,.22);border-radius:999px;background:rgba(24,216,255,.07);color:#dff9ff;font-size:12px}.chip.danger{border-color:rgba(255,79,139,.42);color:#ff9fc0;background:rgba(255,79,139,.09)}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.empty{padding:18px;border:1px dashed rgba(238,248,255,.18);border-radius:8px;color:var(--muted);text-align:center}.form-grid{display:grid;gap:12px}.form-grid label{display:grid;gap:7px;color:#abd2f5;font-size:14px}.form-grid input,.form-grid textarea,.form-grid select{width:100%;min-height:43px;padding:12px;border:1px solid rgba(238,248,255,.18);border-radius:8px;background:#050913;color:#fff;font:inherit}.form-grid textarea{min-height:100px;resize:vertical}.leader-row{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center}.place{display:grid;place-items:center;width:42px;height:42px;border-radius:8px;border:1px solid var(--line);color:var(--cyan);background:rgba(24,216,255,.08);font-weight:900}.message{min-height:22px;margin:12px 0 0;color:var(--ok)}.message.error{color:var(--danger)}
+    @media(max-width:1050px){.shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.nav{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:22px}.hero-panel,.content-grid{grid-template-columns:1fr}.core{justify-self:start}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:720px){.main{padding:20px 14px 36px}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between}.nav{grid-template-columns:1fr 1fr}.hero-panel{padding:22px}.metrics{grid-template-columns:1fr}h1{font-size:48px}.core{width:140px;height:140px}.content-grid{gap:14px}}
   </style>
 </head>
-<body>
-  <div class="layout">
+<body data-generated-fallback data-page="${pageKey}">
+  <div class="shell">
     <aside class="sidebar">
       <a class="brand" href="/dashboard.html"><span class="mark">SL</span><span>Daily Hunter</span></a>
       <nav class="nav">
-        <a href="/dashboard.html" class="${title === "Dashboard" ? "active" : ""}">Dashboard</a>
-        <a href="/desafios.html" class="${title === "Desafios" ? "active" : ""}">Desafios</a>
-        <a href="/boss.html" class="${title === "Boss" ? "active" : ""}">Boss</a>
-        <a href="/ranking.html" class="${title === "Top Hunters" ? "active" : ""}">Top Hunters</a>
-        <a href="/perfil.html" class="${title === "Perfil" ? "active" : ""}">Perfil</a>
+        <a href="/dashboard.html" class="${pageKey === "dashboard" ? "active" : ""}">Dashboard</a>
+        <a href="/desafios.html" class="${pageKey === "desafios" ? "active" : ""}">Desafios</a>
+        <a href="/boss.html" class="${pageKey === "boss" ? "active" : ""}">Boss</a>
+        <a href="/ranking.html" class="${pageKey === "ranking" ? "active" : ""}">Top Hunters</a>
+        <a href="/perfil.html" class="${pageKey === "perfil" ? "active" : ""}">Perfil</a>
       </nav>
     </aside>
     <main class="main">
-      <div class="top">
-        <div><span style="color:#18d8ff;text-transform:uppercase;font-size:12px;font-weight:900">Sistema do Hunter</span><h1>${title}</h1></div>
-        <button onclick="localStorage.clear(); location.href='/login.html'">Sair</button>
-      </div>
-      <section class="card">
-        <p>${message}</p>
-        <div class="stats">
-          <div class="stat"><small>Hunter</small><strong data-name>Carregando...</strong></div>
-          <div class="stat"><small>Nivel</small><strong data-level>-</strong></div>
-          <div class="stat"><small>Rank</small><strong data-rank>-</strong></div>
+      <header class="topbar">
+        <div><span class="system">Sistema do Hunter</span></div>
+        <div class="top-actions">
+          <span class="level-pill" data-top-level>Nivel 1</span>
+          <span class="rank-pill" data-top-rank>Rank E</span>
+          <button class="ghost-button" data-logout>Sair</button>
         </div>
+      </header>
+
+      <section class="hero-panel">
+        <div>
+          <span class="system" data-player-name>Carregando hunter...</span>
+          <h1>${title}</h1>
+          <p class="subtitle">${message}</p>
+        </div>
+        <div class="core">
+          <div>
+            <small>Rank</small>
+            <strong data-core-rank>E</strong>
+            <small data-core-level>Nivel 1</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics">
+        <article class="metric"><span>Nivel</span><strong data-level>1</strong></article>
+        <article class="metric"><span>XP atual</span><strong data-xp>0</strong><div class="xp-track"><div class="xp-fill" data-xp-fill></div></div></article>
+        <article class="metric"><span>Missoes concluidas</span><strong data-completed>0</strong></article>
+        <article class="metric"><span>Bosses derrotados</span><strong data-defeated>0</strong></article>
+      </section>
+
+      <section class="content-grid" data-content>
+        <article class="card"><h2>Sincronizando...</h2><p class="empty">Conectando ao sistema do hunter.</p></article>
       </section>
     </main>
   </div>
+
   <script>
+    const pageName = "${pageKey}";
     const token = localStorage.getItem("hunter_token");
+    const state = { profile: null, challenges: [], bosses: [], history: [], ranking: [] };
+    const content = document.querySelector("[data-content]");
+
     if (!token) location.href = "/login.html";
-    fetch("/profile", { headers: { Authorization: "Bearer " + token } })
-      .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Sessao expirada.");
-        document.querySelector("[data-name]").textContent = data.nome || "Hunter";
-        document.querySelector("[data-level]").textContent = data.level || 1;
-        document.querySelector("[data-rank]").textContent = data.rank || "E";
-      })
-      .catch(() => {
+
+    document.querySelector("[data-logout]").addEventListener("click", function() {
+      localStorage.clear();
+      location.href = "/login.html";
+    });
+
+    function html(value) {
+      return String(value == null ? "" : value).replace(/[&<>"']/g, function(char) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char];
+      });
+    }
+
+    function dateLabel(value) {
+      if (!value) return "Sem prazo";
+      try {
+        return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+      } catch (error) {
+        return "Sem prazo";
+      }
+    }
+
+    function api(path, options) {
+      options = options || {};
+      const headers = Object.assign({ "Content-Type": "application/json", Authorization: "Bearer " + token }, options.headers || {});
+      return fetch(path, Object.assign({}, options, { headers: headers })).then(function(response) {
+        return response.text().then(function(text) {
+          const data = text ? JSON.parse(text) : {};
+          if (!response.ok) throw new Error(data.message || "Erro no sistema.");
+          return data;
+        });
+      });
+    }
+
+    function xpNext(level) {
+      const table = { 1: 100, 2: 250, 3: 500, 4: 1000 };
+      return table[level] || level * 500;
+    }
+
+    function updateHud() {
+      const player = state.profile || {};
+      const level = Number(player.level || 1);
+      const xp = Number(player.xp || 0);
+      const needed = Number(player.xp_for_next_level || player.xpForNextLevel || xpNext(level));
+      const percent = Math.max(0, Math.min(100, Math.round((xp / needed) * 100)));
+      const completed = state.challenges.filter(function(item) { return item.status === "concluido"; }).length;
+      const defeated = state.bosses.filter(function(item) { return item.status === "derrotado"; }).length;
+
+      document.querySelector("[data-player-name]").textContent = player.nome || "Hunter";
+      document.querySelector("[data-top-level]").textContent = "Nivel " + level;
+      document.querySelector("[data-top-rank]").textContent = "Rank " + (player.rank || "E");
+      document.querySelector("[data-core-rank]").textContent = player.rank || "E";
+      document.querySelector("[data-core-level]").textContent = "Nivel " + level;
+      document.querySelector("[data-level]").textContent = level;
+      document.querySelector("[data-xp]").textContent = xp + " / " + needed;
+      document.querySelector("[data-xp-fill]").style.width = percent + "%";
+      document.querySelector("[data-completed]").textContent = completed;
+      document.querySelector("[data-defeated]").textContent = defeated;
+    }
+
+    function itemStatusClass(status) {
+      return status === "falhou" ? "chip danger" : "chip";
+    }
+
+    function challengeCard(item) {
+      return '<article class="list-item">'
+        + '<header><h3>' + html(item.title) + '</h3><span class="' + itemStatusClass(item.status) + '">' + html(item.status || "pendente") + '</span></header>'
+        + '<p>' + html(item.description || "Sem descricao.") + '</p>'
+        + '<div class="chips"><span class="chip">' + html(item.difficulty || "normal") + '</span><span class="chip">' + Number(item.xp_reward || 0) + ' XP</span><span class="chip">' + dateLabel(item.due_date) + '</span></div>'
+        + '<div class="actions"><button class="button ok" data-action="complete-challenge" data-id="' + html(item.id) + '">Concluir</button><button class="ghost-button danger" data-action="fail-challenge" data-id="' + html(item.id) + '">Falhar</button><button class="ghost-button" data-action="delete-challenge" data-id="' + html(item.id) + '">Excluir</button></div>'
+        + '</article>';
+    }
+
+    function bossCard(item) {
+      return '<article class="list-item">'
+        + '<header><h3>' + html(item.name) + '</h3><span class="' + itemStatusClass(item.status) + '">' + html(item.status || "ativo") + '</span></header>'
+        + '<p>Penalidade: ' + html(item.penalty || "Missao de penalidade") + '</p>'
+        + '<div class="chips"><span class="chip">Nivel ' + Number(item.level_required || 1) + '</span><span class="chip">' + html(item.difficulty || "normal") + '</span><span class="chip">' + Number(item.reward_xp || 0) + ' XP</span><span class="chip">' + dateLabel(item.time_limit) + '</span></div>'
+        + '<div class="actions"><button class="button ok" data-action="defeat-boss" data-id="' + html(item.id) + '">Derrotar</button><button class="ghost-button danger" data-action="fail-boss" data-id="' + html(item.id) + '">Falhar</button><button class="ghost-button" data-action="delete-boss" data-id="' + html(item.id) + '">Excluir</button></div>'
+        + '</article>';
+    }
+
+    function renderDashboard() {
+      const pending = state.challenges.filter(function(item) { return item.status === "pendente"; }).slice(0, 4);
+      const activeBosses = state.bosses.filter(function(item) { return item.status === "ativo"; }).slice(0, 3);
+      const history = state.history.slice(0, 5);
+      content.innerHTML = '<article class="card"><h2>Missoes do dia</h2><div class="list">'
+        + (pending.length ? pending.map(challengeCard).join("") : '<p class="empty">Nenhuma missao pendente.</p>')
+        + '</div></article><article class="card"><h2>Ameacas ativas</h2><div class="list">'
+        + (activeBosses.length ? activeBosses.map(bossCard).join("") : '<p class="empty">Nenhum boss ativo.</p>')
+        + '</div><h2 style="margin-top:22px">Historico recente</h2><div class="list">'
+        + (history.length ? history.map(function(item) { return '<article class="list-item"><span class="label">' + dateLabel(item.created_at) + '</span><p>' + html(item.description || item.action) + '</p></article>'; }).join("") : '<p class="empty">Sem historico ainda.</p>')
+        + '</div></article>';
+    }
+
+    function renderChallenges() {
+      content.innerHTML = '<article class="card"><h2>Lista de desafios</h2><div class="list">'
+        + (state.challenges.length ? state.challenges.map(challengeCard).join("") : '<p class="empty">Nenhum desafio criado.</p>')
+        + '</div></article><article class="card"><h2>Novo desafio</h2><form class="form-grid" data-challenge-form><label>Titulo<input name="title" required placeholder="Correr 2 km"></label><label>Descricao<textarea name="description" placeholder="Detalhe a missao"></textarea></label><label>Dificuldade<select name="difficulty"><option>Facil</option><option selected>Normal</option><option>Dificil</option><option>Insano</option></select></label><label>Vencimento<input name="due_date" type="datetime-local"></label><button class="button" type="submit">Criar missao</button><p class="message" data-form-message></p></form></article>';
+      document.querySelector("[data-challenge-form]").addEventListener("submit", submitChallenge);
+    }
+
+    function renderBoss() {
+      content.innerHTML = '<article class="card"><h2>Bosses</h2><div class="list">'
+        + (state.bosses.length ? state.bosses.map(bossCard).join("") : '<p class="empty">Nenhum boss encontrado.</p>')
+        + '</div></article><article class="card"><h2>Portal de ameaca</h2><p class="subtitle">Gere um boss quando precisar recuperar disciplina ou pagar uma penalidade.</p><button class="button" data-action="spawn-boss">Spawnar boss</button><p class="message" data-form-message></p></article>';
+    }
+
+    function renderRanking() {
+      content.innerHTML = '<article class="card" style="grid-column:1/-1"><h2>Top Hunters</h2><div class="list">'
+        + (state.ranking.length ? state.ranking.map(function(item, index) {
+          return '<article class="list-item leader-row"><span class="place">#' + (index + 1) + '</span><div><h3>' + html(item.nome || "Hunter") + '</h3><div class="chips"><span class="chip">Nivel ' + Number(item.level || 1) + '</span><span class="chip">Rank ' + html(item.rank || "E") + '</span></div></div><strong>' + Number(item.xp || 0) + ' XP</strong></article>';
+        }).join("") : '<p class="empty">Ranking vazio.</p>')
+        + '</div></article>';
+    }
+
+    function renderProfile() {
+      const history = state.history.slice(0, 8);
+      const player = state.profile || {};
+      content.innerHTML = '<article class="card"><h2>Perfil do hunter</h2><div class="list"><article class="list-item"><span class="label">Nome</span><h3>' + html(player.nome || "Hunter") + '</h3></article><article class="list-item"><span class="label">Email</span><h3>' + html(player.email || "-") + '</h3></article><article class="list-item"><span class="label">Criado em</span><h3>' + dateLabel(player.created_at) + '</h3></article></div></article><article class="card"><h2>Historico</h2><div class="list">'
+        + (history.length ? history.map(function(item) { return '<article class="list-item"><span class="label">' + dateLabel(item.created_at) + '</span><p>' + html(item.description || item.action) + '</p></article>'; }).join("") : '<p class="empty">Sem eventos registrados.</p>')
+        + '</div></article>';
+    }
+
+    function render() {
+      updateHud();
+      if (pageName === "desafios") return renderChallenges();
+      if (pageName === "boss") return renderBoss();
+      if (pageName === "ranking") return renderRanking();
+      if (pageName === "perfil") return renderProfile();
+      return renderDashboard();
+    }
+
+    function refresh() {
+      return Promise.all([
+        api("/player/status").catch(function() { return api("/profile"); }),
+        api("/challenges").catch(function() { return []; }),
+        api("/boss").catch(function() { return []; }),
+        api("/history").catch(function() { return []; }),
+        api("/ranking").catch(function() { return []; })
+      ]).then(function(results) {
+        state.profile = results[0].player || results[0];
+        state.challenges = Array.isArray(results[1]) ? results[1] : [];
+        state.bosses = Array.isArray(results[2]) ? results[2] : [];
+        state.history = Array.isArray(results[3]) ? results[3] : [];
+        state.ranking = Array.isArray(results[4]) ? results[4] : [];
+        localStorage.setItem("hunter_user", JSON.stringify(state.profile));
+        render();
+      }).catch(function() {
         localStorage.clear();
         location.href = "/login.html";
       });
+    }
+
+    function submitChallenge(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const data = Object.fromEntries(new FormData(form).entries());
+      api("/challenges", { method: "POST", body: JSON.stringify(data) }).then(function() {
+        form.reset();
+        return refresh();
+      }).catch(function(error) {
+        const message = document.querySelector("[data-form-message]");
+        if (message) {
+          message.textContent = error.message;
+          message.className = "message error";
+        }
+      });
+    }
+
+    document.addEventListener("click", function(event) {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+      const action = button.getAttribute("data-action");
+      const id = button.getAttribute("data-id");
+      let request = null;
+      if (action === "complete-challenge") request = api("/challenges/" + id + "/complete", { method: "PATCH" });
+      if (action === "fail-challenge") request = api("/challenges/" + id + "/fail", { method: "PATCH" });
+      if (action === "delete-challenge" && confirm("Excluir esta missao?")) request = api("/challenges/" + id, { method: "DELETE" });
+      if (action === "spawn-boss") request = api("/boss", { method: "POST", body: JSON.stringify({}) });
+      if (action === "defeat-boss") request = api("/boss/" + id + "/defeat", { method: "PATCH" });
+      if (action === "fail-boss") request = api("/boss/" + id + "/fail", { method: "PATCH" });
+      if (action === "delete-boss" && confirm("Excluir este boss?")) request = api("/boss/" + id, { method: "DELETE" });
+      if (request) request.then(refresh).catch(function(error) { alert(error.message); });
+    });
+
+    refresh();
   </script>
 </body>
 </html>`;
@@ -232,11 +451,11 @@ function ensureGeneratedFrontend() {
 
   writeGeneratedPublicFile("login.html", generatedAuthPage("login"));
   writeGeneratedPublicFile("register.html", generatedAuthPage("register"));
-  writeGeneratedPublicFile("dashboard.html", generatedAppPage("Dashboard", "Seu perfil esta online. Envie a pasta frontend/public para liberar o painel completo."));
-  writeGeneratedPublicFile("desafios.html", generatedAppPage("Desafios", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para usar o CRUD de missoes."));
-  writeGeneratedPublicFile("boss.html", generatedAppPage("Boss", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para usar os bosses."));
-  writeGeneratedPublicFile("ranking.html", generatedAppPage("Top Hunters", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para ver o ranking completo."));
-  writeGeneratedPublicFile("perfil.html", generatedAppPage("Perfil", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para editar/ver o perfil completo."));
+  writeGeneratedPublicFile("dashboard.html", generatedAppPage("Dashboard", "Acompanhe seu nivel, XP, missoes pendentes, bosses ativos e historico recente em tempo real."));
+  writeGeneratedPublicFile("desafios.html", generatedAppPage("Desafios", "Crie missoes, deixe o sistema calcular o XP, conclua objetivos e mantenha sua rotina sob controle."));
+  writeGeneratedPublicFile("boss.html", generatedAppPage("Boss", "Enfrente penalidades, derrote bosses e recupere progresso quando o sistema exigir disciplina extra."));
+  writeGeneratedPublicFile("ranking.html", generatedAppPage("Top Hunters", "Compare nivel, XP e progresso dos hunters mais fortes do sistema."));
+  writeGeneratedPublicFile("perfil.html", generatedAppPage("Perfil", "Veja seus dados, rank atual e os eventos que marcaram sua evolucao."));
 }
 
 copyFrontendSourceToPublic();
