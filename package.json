@@ -5,7 +5,6 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "postinstall": "node scripts/ensure-public.js",
     "start": "node server.js",
     "prisma:generate": "npx prisma generate --schema prisma/schema.prisma",
     "prisma:migrate": "npx prisma migrate dev --schema prisma/schema.prisma",
