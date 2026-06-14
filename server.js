@@ -102,9 +102,16 @@ function generatedAuthPage(type) {
   <script>
     const form = document.querySelector("form");
     const message = document.querySelector("[data-message]");
+    const isRegistrationPage = ${isRegister ? "true" : "false"};
+    const params = new URLSearchParams(window.location.search);
+    if (!isRegistrationPage && params.get("registered") === "1") {
+      message.textContent = "Conta criada. Agora faca login para entrar no sistema.";
+      message.className = "message ok";
+    }
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       message.textContent = "";
+      message.className = "message";
       const data = Object.fromEntries(new FormData(form).entries());
       try {
         const response = await fetch("${endpoint}", {
@@ -114,6 +121,12 @@ function generatedAuthPage(type) {
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "Erro no sistema.");
+        if (isRegistrationPage) {
+          localStorage.removeItem("hunter_token");
+          localStorage.removeItem("hunter_user");
+          window.location.href = "/login.html?registered=1";
+          return;
+        }
         localStorage.setItem("hunter_token", result.token);
         localStorage.setItem("hunter_user", JSON.stringify(result.user));
         window.location.href = "/dashboard.html";

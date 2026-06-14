@@ -22,7 +22,7 @@ async function handleRegister(event) {
   const form = new FormData(event.target);
 
   try {
-    const result = await apiRequest("/register", {
+    await apiRequest("/register", {
       method: "POST",
       body: JSON.stringify({
         nome: form.get("nome"),
@@ -30,8 +30,8 @@ async function handleRegister(event) {
         senha: form.get("senha")
       })
     });
-    setSession(result.token, result.user);
-    window.location.href = "dashboard.html";
+    clearSession();
+    window.location.href = "login.html?registered=1";
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -45,3 +45,9 @@ if (document.querySelector("[data-register-form]")) {
   document.querySelector("[data-register-form]").addEventListener("submit", handleRegister);
 }
 
+if (document.querySelector("[data-login-form]")) {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("registered") === "1") {
+    showMessage("Conta criada. Agora faca login para entrar no sistema.", "success");
+  }
+}
