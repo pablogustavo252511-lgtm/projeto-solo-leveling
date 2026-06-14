@@ -394,6 +394,24 @@ small {
   color: var(--muted);
 }
 
+.xp-analysis-box {
+  display: grid;
+  gap: 0.3rem;
+  border: 1px solid rgba(24, 216, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(24, 216, 255, 0.07);
+  padding: 0.8rem;
+}
+
+.xp-analysis-box span,
+.xp-analysis-box small {
+  color: var(--muted);
+}
+
+.xp-analysis-box strong {
+  color: var(--neon);
+}
+
 .status.concluido,
 .status.derrotado,
 .system-message.success {
@@ -498,4 +516,3 @@ th {
     grid-template-columns: 1fr;
   }
 }
-

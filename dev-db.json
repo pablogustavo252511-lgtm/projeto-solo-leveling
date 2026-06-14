@@ -1,0 +1,357 @@
+{
+  "users": [
+    {
+      "id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "level": 1,
+      "xp": 0,
+      "rank": "E",
+      "nome": "pablo gustavo verissimo de sa",
+      "email": "pablogustavo252511@gmail.com",
+      "senha": "$2b$10$BWH9eHPEVwRHpYqNvwJby.EzM/KbTOQYKxUn2WGEgrttoGP9olmpq",
+      "created_at": "2026-06-14T07:28:47.213Z",
+      "updated_at": "2026-06-14T07:43:25.325Z"
+    }
+  ],
+  "challenges": [],
+  "bosses": [
+    {
+      "id": "de814ecc-4ad5-4d21-8448-8b75fc92bd54",
+      "status": "falhou",
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "name": "Lobo Sombrio da Disciplina",
+      "level_required": 1,
+      "difficulty": "facil",
+      "reward_xp": 50,
+      "penalty": "50 flexoes e 3 km de corrida",
+      "time_limit": "2026-06-15T07:29:16.535Z",
+      "created_at": "2026-06-14T07:29:16.536Z",
+      "updated_at": "2026-06-14T07:43:25.324Z"
+    }
+  ],
+  "history": [
+    {
+      "id": "85f82719-44a4-4aed-aa43-9481d4154e9c",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "cadastro",
+      "description": "Hunter registrado no sistema. Nivel 1, XP 0, Rank E.",
+      "created_at": "2026-06-14T07:28:47.214Z",
+      "updated_at": "2026-06-14T07:28:47.214Z"
+    },
+    {
+      "id": "6eeb76fd-5f95-46c6-8dc5-58052d6ef1c2",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_spawnado",
+      "description": "Boss Spawnado: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:29:16.537Z",
+      "updated_at": "2026-06-14T07:29:16.537Z"
+    },
+    {
+      "id": "a31e448a-40b7-4bb4-9d24-d6410bee69e0",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:29:21.666Z",
+      "updated_at": "2026-06-14T07:29:21.666Z"
+    },
+    {
+      "id": "a6a8e514-5053-486f-8b1d-4512b4c60d72",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:29:21.668Z",
+      "updated_at": "2026-06-14T07:29:21.668Z"
+    },
+    {
+      "id": "a49b578b-793e-423a-9e4a-04ee1cb90d93",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_criado",
+      "description": "Desafio criado: dfg.",
+      "created_at": "2026-06-14T07:36:07.135Z",
+      "updated_at": "2026-06-14T07:36:07.135Z"
+    },
+    {
+      "id": "fd548493-1858-4214-b96a-2a36e543f8f6",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_excluido",
+      "description": "Desafio excluido: dfg.",
+      "created_at": "2026-06-14T07:36:10.903Z",
+      "updated_at": "2026-06-14T07:36:10.903Z"
+    },
+    {
+      "id": "fc9334a8-f496-4d89-868b-a08680ee7bbd",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_criado",
+      "description": "Desafio criado: dgfh.",
+      "created_at": "2026-06-14T07:36:58.995Z",
+      "updated_at": "2026-06-14T07:36:58.995Z"
+    },
+    {
+      "id": "885fb06f-1704-4ee5-8ed0-9903650977cf",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_excluido",
+      "description": "Desafio excluido: dgfh.",
+      "created_at": "2026-06-14T07:37:03.291Z",
+      "updated_at": "2026-06-14T07:37:03.291Z"
+    },
+    {
+      "id": "dcf0770c-0617-4506-ae35-421ae31f3900",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_criado",
+      "description": "Desafio criado: eu vou correr 20 km.",
+      "created_at": "2026-06-14T07:42:48.966Z",
+      "updated_at": "2026-06-14T07:42:48.966Z"
+    },
+    {
+      "id": "9d1cee21-7ad7-4747-ad99-36d9d5a60c60",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_excluido",
+      "description": "Desafio excluido: eu vou correr 20 km.",
+      "created_at": "2026-06-14T07:42:53.074Z",
+      "updated_at": "2026-06-14T07:42:53.074Z"
+    },
+    {
+      "id": "9d77c7e6-99f7-408f-b2e1-65de0a926c44",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_criado",
+      "description": "Desafio criado: correr 2 km.",
+      "created_at": "2026-06-14T07:42:58.674Z",
+      "updated_at": "2026-06-14T07:42:58.674Z"
+    },
+    {
+      "id": "a4e80877-7312-43eb-9898-3dbb6cee4687",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "desafio_excluido",
+      "description": "Desafio excluido: correr 2 km.",
+      "created_at": "2026-06-14T07:43:01.618Z",
+      "updated_at": "2026-06-14T07:43:01.618Z"
+    },
+    {
+      "id": "da3df95f-2655-441b-bdec-f104f880560a",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:21.751Z",
+      "updated_at": "2026-06-14T07:43:21.751Z"
+    },
+    {
+      "id": "df8463bf-4cb5-4f7a-95cb-32c1201d8d51",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:21.752Z",
+      "updated_at": "2026-06-14T07:43:21.752Z"
+    },
+    {
+      "id": "42d54ed2-1cb7-41bc-bbd5-7d8eaed00107",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.254Z",
+      "updated_at": "2026-06-14T07:43:22.254Z"
+    },
+    {
+      "id": "f0c0fde7-90bd-4e10-8535-c8bb729fcbf4",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.255Z",
+      "updated_at": "2026-06-14T07:43:22.255Z"
+    },
+    {
+      "id": "82746379-574d-439f-b1d9-7393150c04b2",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.590Z",
+      "updated_at": "2026-06-14T07:43:22.590Z"
+    },
+    {
+      "id": "c313cf50-b879-46b1-a9a1-7d46fbf90d9c",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.591Z",
+      "updated_at": "2026-06-14T07:43:22.591Z"
+    },
+    {
+      "id": "23a17898-93c2-44bb-a173-8f1f8069be91",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.750Z",
+      "updated_at": "2026-06-14T07:43:22.750Z"
+    },
+    {
+      "id": "0dd576cd-6c7c-4cef-8f79-f714c0b10777",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.751Z",
+      "updated_at": "2026-06-14T07:43:22.751Z"
+    },
+    {
+      "id": "60f8cf18-4ab5-4446-83f2-9d98fc307f2e",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.910Z",
+      "updated_at": "2026-06-14T07:43:22.910Z"
+    },
+    {
+      "id": "0ce4c973-4f2c-4d90-aea7-371329347891",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:22.911Z",
+      "updated_at": "2026-06-14T07:43:22.911Z"
+    },
+    {
+      "id": "41eb24cd-c32e-432d-93a9-64ba48a82848",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.079Z",
+      "updated_at": "2026-06-14T07:43:23.079Z"
+    },
+    {
+      "id": "2b04d985-7137-443c-82d7-ae612d417250",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.080Z",
+      "updated_at": "2026-06-14T07:43:23.080Z"
+    },
+    {
+      "id": "7a3d4216-c616-4245-a747-bb2adc495c01",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.246Z",
+      "updated_at": "2026-06-14T07:43:23.246Z"
+    },
+    {
+      "id": "370e6d4d-70fb-4c7f-9468-351e1e4424cd",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.247Z",
+      "updated_at": "2026-06-14T07:43:23.247Z"
+    },
+    {
+      "id": "2280bcd7-e528-47ca-b3c0-d9375f262395",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.399Z",
+      "updated_at": "2026-06-14T07:43:23.399Z"
+    },
+    {
+      "id": "4f1e5ee3-1e2b-4b01-8c7e-e631085aeb26",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.400Z",
+      "updated_at": "2026-06-14T07:43:23.400Z"
+    },
+    {
+      "id": "bb6e3696-c2e5-4517-9b3b-71038b948abf",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.879Z",
+      "updated_at": "2026-06-14T07:43:23.879Z"
+    },
+    {
+      "id": "7cd06118-1772-4b7f-bd1b-184e1cf4611f",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:23.880Z",
+      "updated_at": "2026-06-14T07:43:23.880Z"
+    },
+    {
+      "id": "8c37f9ce-f8d6-403d-be17-d58cb4428a75",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:24.350Z",
+      "updated_at": "2026-06-14T07:43:24.350Z"
+    },
+    {
+      "id": "d7c4f343-85c6-492e-9ddd-6b6929e03971",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:24.352Z",
+      "updated_at": "2026-06-14T07:43:24.352Z"
+    },
+    {
+      "id": "04e7a7df-6bd0-49cd-9fcc-195525a09681",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:24.855Z",
+      "updated_at": "2026-06-14T07:43:24.855Z"
+    },
+    {
+      "id": "c01d65a2-ed75-48f6-9e75-f272660e8c28",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:24.856Z",
+      "updated_at": "2026-06-14T07:43:24.856Z"
+    },
+    {
+      "id": "700928e9-0da8-4cea-82c1-005e343ea5b3",
+      "xp_earned": -25,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "penalidade",
+      "description": "Falha contra boss: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:25.326Z",
+      "updated_at": "2026-06-14T07:43:25.326Z"
+    },
+    {
+      "id": "9bce4f92-8f7e-4314-a18a-27f068960e4c",
+      "xp_earned": 0,
+      "user_id": "dedce5aa-0851-48eb-9448-413b38c665fc",
+      "action": "boss_falhou",
+      "description": "Boss falhou: Lobo Sombrio da Disciplina.",
+      "created_at": "2026-06-14T07:43:25.327Z",
+      "updated_at": "2026-06-14T07:43:25.327Z"
+    }
+  ]
+}

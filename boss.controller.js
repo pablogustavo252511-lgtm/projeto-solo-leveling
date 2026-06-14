@@ -36,7 +36,15 @@ class BossController {
       return next(error);
     }
   }
+
+  static async destroy(req, res, next) {
+    try {
+      const result = await BossService.remove(req.user.id, req.params.id);
+      return res.json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = BossController;
-

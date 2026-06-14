@@ -1,12 +1,19 @@
 mountAppShell("boss");
 
+let currentBosses = [];
+
 async function loadBosses() {
   try {
     const bosses = await apiRequest("/boss");
+    currentBosses = bosses;
     renderBosses(bosses);
   } catch (error) {
     showMessage(error.message, "error");
   }
+}
+
+function getBossById(id) {
+  return currentBosses.find((boss) => boss.id === id);
 }
 
 function renderBosses(bosses) {
@@ -26,8 +33,9 @@ function renderBosses(bosses) {
       <p>${boss.penalty}</p>
       <small>Nivel necessario ${boss.level_required} | ${boss.difficulty} | Limite: ${formatDate(boss.time_limit)}</small>
       <div class="button-row">
-        <button onclick="defeatBoss('${boss.id}')">Derrotar</button>
-        <button class="danger" onclick="failBoss('${boss.id}')">Falhar</button>
+        <button ${boss.status !== "ativo" ? "disabled" : ""} onclick="defeatBoss('${boss.id}')">Derrotar</button>
+        <button ${boss.status !== "ativo" ? "disabled" : ""} class="danger" onclick="failBoss('${boss.id}')">Falhar</button>
+        <button class="ghost-button" onclick="deleteBoss('${boss.id}')">Excluir</button>
       </div>
     </article>
   `).join("");
@@ -38,6 +46,7 @@ async function spawnBoss() {
     await apiRequest("/boss", { method: "POST", body: JSON.stringify({}) });
     showMessage("Boss Spawnado.", "success");
     await loadBosses();
+    await syncSessionUser();
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -48,6 +57,7 @@ async function defeatBoss(id) {
     const result = await apiRequest(`/boss/${id}/defeat`, { method: "PATCH" });
     showMessage(result.message, "success");
     await loadBosses();
+    await syncSessionUser();
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -58,6 +68,27 @@ async function failBoss(id) {
     const result = await apiRequest(`/boss/${id}/fail`, { method: "PATCH" });
     showMessage(result.message, "error");
     await loadBosses();
+    await syncSessionUser();
+  } catch (error) {
+    showMessage(error.message, "error");
+  }
+}
+
+async function deleteBoss(id) {
+  const boss = getBossById(id);
+  if (!boss) {
+    showMessage("Boss nao encontrado na lista atual.", "error");
+    return;
+  }
+
+  const confirmed = window.confirm(`Excluir o boss "${boss.name}"?`);
+  if (!confirmed) return;
+
+  try {
+    await apiRequest(`/boss/${id}`, { method: "DELETE" });
+    showMessage(`Boss "${boss.name}" excluido.`, "success");
+    await loadBosses();
+    await syncSessionUser();
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -65,4 +96,3 @@ async function failBoss(id) {
 
 document.querySelector("[data-spawn-boss]").addEventListener("click", spawnBoss);
 loadBosses();
-

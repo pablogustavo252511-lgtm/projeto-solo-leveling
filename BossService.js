@@ -127,7 +127,22 @@ class BossService {
     await HistoryService.register(userId, "boss_falhou", `Boss falhou: ${boss.name}.`, 0);
     return { boss: updatedBoss, player, message: "Boss falhou" };
   }
+
+  static async remove(userId, bossId) {
+    const boss = await prisma.boss.findFirst({
+      where: { id: bossId, user_id: userId }
+    });
+
+    if (!boss) {
+      const error = new Error("Boss nao encontrado.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await prisma.boss.delete({ where: { id: boss.id } });
+    await HistoryService.register(userId, "boss_excluido", `Boss excluido: ${boss.name}.`, 0);
+    return { message: "Boss excluido.", boss };
+  }
 }
 
 module.exports = BossService;
-
