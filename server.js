@@ -12,6 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const frontendOrigin = process.env.FRONTEND_ORIGIN || "*";
 const frontendPathCandidates = [
+  path.join(__dirname, "public"),
   path.join(__dirname, "..", "frontend"),
   path.join(process.cwd(), "..", "frontend"),
   path.join(process.cwd(), "frontend"),
