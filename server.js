@@ -54,6 +54,136 @@ function copyFrontendSourceToPublic() {
   console.log(`Frontend copiado para public a partir de: ${sourcePath}`);
 }
 
+function writeGeneratedPublicFile(relativePath, content) {
+  const filePath = path.join(generatedPublicPath, relativePath);
+  if (fs.existsSync(filePath)) return;
+
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, content);
+}
+
+function generatedAuthPage(type) {
+  const isRegister = type === "register";
+  const title = isRegister ? "Cadastro" : "Login";
+  const subtitle = isRegister ? "Nivel 1, XP 0, Rank E." : "Entre no sistema do hunter.";
+  const endpoint = isRegister ? "/register" : "/login";
+  const submitLabel = isRegister ? "Despertar Hunter" : "Entrar";
+  const extraField = isRegister
+    ? '<label>Nome<input name="nome" type="text" required></label>'
+    : "";
+  const switchLink = isRegister
+    ? '<a href="/login.html">Ja tenho conta</a>'
+    : '<a href="/register.html">Criar novo hunter</a>';
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} - Daily Hunter</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 20%,rgba(24,216,255,.18),transparent 25rem),radial-gradient(circle at 80% 70%,rgba(141,92,255,.16),transparent 28rem),#02050b;color:#eef7ff;font-family:Arial,sans-serif}.panel{width:min(440px,calc(100vw - 32px));padding:32px;border:1px solid rgba(24,216,255,.34);border-radius:10px;background:rgba(12,18,32,.86);box-shadow:0 0 42px rgba(24,216,255,.12);text-align:center}.mark{display:grid;place-items:center;width:46px;height:46px;margin:0 auto 18px;border:1px solid #18d8ff;border-radius:8px;color:#18d8ff;font-weight:900;box-shadow:0 0 22px rgba(24,216,255,.35)}h1{margin:0 0 10px;font-size:46px}p{color:#a9bed3}.form{display:grid;gap:14px;margin-top:24px;text-align:left}label{display:grid;gap:8px;color:#9ec8ed}input{width:100%;padding:14px;border:1px solid rgba(238,247,255,.2);border-radius:8px;background:#050913;color:#fff;font-size:16px}button,.btn{width:100%;padding:14px;border:1px solid #18d8ff;border-radius:8px;background:linear-gradient(135deg,rgba(24,216,255,.25),rgba(141,92,255,.28));color:#fff;font-size:16px;cursor:pointer}a{display:inline-block;margin-top:18px;color:#18d8ff;text-decoration:none}.message{min-height:22px;margin-top:14px;color:#ff4f8b}.message.ok{color:#2cffad}
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <span class="mark">SL</span>
+    <h1>${title}</h1>
+    <p>${subtitle}</p>
+    <form class="form">
+      ${extraField}
+      <label>Email<input name="email" type="email" required></label>
+      <label>Senha<input name="senha" type="password" required minlength="6"></label>
+      <button type="submit">${submitLabel}</button>
+      <p class="message" data-message></p>
+    </form>
+    ${switchLink}
+  </main>
+  <script>
+    const form = document.querySelector("form");
+    const message = document.querySelector("[data-message]");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "";
+      const data = Object.fromEntries(new FormData(form).entries());
+      try {
+        const response = await fetch("${endpoint}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Erro no sistema.");
+        localStorage.setItem("hunter_token", result.token);
+        localStorage.setItem("hunter_user", JSON.stringify(result.user));
+        window.location.href = "/dashboard.html";
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>`;
+}
+
+function generatedAppPage(title, message) {
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} - Daily Hunter</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 25% 20%,rgba(24,216,255,.16),transparent 28rem),radial-gradient(circle at 80% 10%,rgba(141,92,255,.16),transparent 30rem),#02050b;color:#eef7ff;font-family:Arial,sans-serif}.layout{min-height:100vh;display:grid;grid-template-columns:240px 1fr}.sidebar{padding:22px;border-right:1px solid rgba(24,216,255,.22);background:rgba(2,5,11,.72)}.brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;font-weight:800}.mark{display:grid;place-items:center;width:44px;height:44px;border:1px solid #18d8ff;border-radius:8px;color:#18d8ff}.nav{display:grid;gap:8px;margin-top:42px}.nav a{padding:13px;border-radius:8px;color:#aec2d8;text-decoration:none}.nav a:hover,.nav a.active{background:rgba(24,216,255,.12);color:#fff}.main{padding:clamp(24px,5vw,64px)}.top{display:flex;justify-content:space-between;gap:16px;align-items:center}.pill{padding:8px 12px;border:1px solid rgba(24,216,255,.42);border-radius:999px;color:#18d8ff}.card{margin-top:34px;max-width:860px;padding:26px;border:1px solid rgba(24,216,255,.26);border-radius:10px;background:rgba(12,18,32,.82);box-shadow:0 0 32px rgba(24,216,255,.1)}h1{font-size:clamp(44px,7vw,82px);margin:0 0 12px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.stat{padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.03)}button{padding:10px 14px;border:1px solid rgba(255,255,255,.28);border-radius:8px;background:transparent;color:#fff;cursor:pointer}@media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid rgba(24,216,255,.22)}.stats{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="/dashboard.html"><span class="mark">SL</span><span>Daily Hunter</span></a>
+      <nav class="nav">
+        <a href="/dashboard.html" class="${title === "Dashboard" ? "active" : ""}">Dashboard</a>
+        <a href="/desafios.html" class="${title === "Desafios" ? "active" : ""}">Desafios</a>
+        <a href="/boss.html" class="${title === "Boss" ? "active" : ""}">Boss</a>
+        <a href="/ranking.html" class="${title === "Top Hunters" ? "active" : ""}">Top Hunters</a>
+        <a href="/perfil.html" class="${title === "Perfil" ? "active" : ""}">Perfil</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="top">
+        <div><span style="color:#18d8ff;text-transform:uppercase;font-size:12px;font-weight:900">Sistema do Hunter</span><h1>${title}</h1></div>
+        <button onclick="localStorage.clear(); location.href='/login.html'">Sair</button>
+      </div>
+      <section class="card">
+        <p>${message}</p>
+        <div class="stats">
+          <div class="stat"><small>Hunter</small><strong data-name>Carregando...</strong></div>
+          <div class="stat"><small>Nivel</small><strong data-level>-</strong></div>
+          <div class="stat"><small>Rank</small><strong data-rank>-</strong></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const token = localStorage.getItem("hunter_token");
+    if (!token) location.href = "/login.html";
+    fetch("/profile", { headers: { Authorization: "Bearer " + token } })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Sessao expirada.");
+        document.querySelector("[data-name]").textContent = data.nome || "Hunter";
+        document.querySelector("[data-level]").textContent = data.level || 1;
+        document.querySelector("[data-rank]").textContent = data.rank || "E";
+      })
+      .catch(() => {
+        localStorage.clear();
+        location.href = "/login.html";
+      });
+  </script>
+</body>
+</html>`;
+}
+
 function ensureGeneratedFrontend() {
   if (!fs.existsSync(generatedPublicPath)) {
     fs.mkdirSync(generatedPublicPath, { recursive: true });
@@ -86,6 +216,14 @@ function ensureGeneratedFrontend() {
 </body>
 </html>`);
   }
+
+  writeGeneratedPublicFile("login.html", generatedAuthPage("login"));
+  writeGeneratedPublicFile("register.html", generatedAuthPage("register"));
+  writeGeneratedPublicFile("dashboard.html", generatedAppPage("Dashboard", "Seu perfil esta online. Envie a pasta frontend/public para liberar o painel completo."));
+  writeGeneratedPublicFile("desafios.html", generatedAppPage("Desafios", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para usar o CRUD de missoes."));
+  writeGeneratedPublicFile("boss.html", generatedAppPage("Boss", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para usar os bosses."));
+  writeGeneratedPublicFile("ranking.html", generatedAppPage("Top Hunters", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para ver o ranking completo."));
+  writeGeneratedPublicFile("perfil.html", generatedAppPage("Perfil", "Esta pagina de emergencia confirma que o deploy esta funcionando. Envie os arquivos completos do frontend para editar/ver o perfil completo."));
 }
 
 copyFrontendSourceToPublic();
