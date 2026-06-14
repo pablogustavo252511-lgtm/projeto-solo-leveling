@@ -20,6 +20,46 @@ const frontendPathCandidates = [
   path.join(__dirname, "..", "..", "frontend"),
   path.join(__dirname, "..", "..", "solo-leveling-system", "frontend")
 ];
+const generatedPublicPath = path.join(__dirname, "public");
+
+function ensureGeneratedFrontend() {
+  if (!fs.existsSync(generatedPublicPath)) {
+    fs.mkdirSync(generatedPublicPath, { recursive: true });
+  }
+
+  const pageFile = path.join(generatedPublicPath, "page.html");
+  if (!fs.existsSync(pageFile)) {
+    fs.writeFileSync(pageFile, `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solo Leveling - Daily Hunter System</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#05070d;color:#eef7ff;font-family:Arial,sans-serif}
+    main{width:min(440px,90vw);padding:32px;border:1px solid rgba(24,216,255,.35);border-radius:8px;background:#0c1220;box-shadow:0 0 32px rgba(24,216,255,.16);text-align:center}
+    h1{font-size:42px;margin:16px 0 8px}
+    p{color:#9db2c8}
+    a{display:inline-block;margin:8px;padding:12px 18px;border:1px solid #18d8ff;border-radius:8px;color:#eef7ff;text-decoration:none;background:linear-gradient(135deg,rgba(24,216,255,.22),rgba(141,92,255,.24))}
+    code{display:block;margin-top:18px;color:#18d8ff}
+  </style>
+</head>
+<body>
+  <main>
+    <strong>SL</strong>
+    <h1>Solo Leveling</h1>
+    <p>Daily Hunter System</p>
+    <a href="/login.html">Entrar</a>
+    <a href="/register.html">Criar conta</a>
+    <code>Frontend fallback gerado pelo servidor.</code>
+  </main>
+</body>
+</html>`);
+  }
+}
+
+ensureGeneratedFrontend();
+
 const frontendPath = frontendPathCandidates.find((candidate) => {
   return fs.existsSync(path.join(candidate, "page.html"))
     || fs.existsSync(path.join(candidate, "index.html"));
