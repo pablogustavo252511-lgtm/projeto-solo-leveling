@@ -21,6 +21,38 @@ const frontendPathCandidates = [
   path.join(__dirname, "..", "..", "solo-leveling-system", "frontend")
 ];
 const generatedPublicPath = path.join(__dirname, "public");
+const frontendPageFiles = [
+  "page.html",
+  "index.html",
+  "login.html",
+  "register.html",
+  "dashboard.html",
+  "desafios.html",
+  "boss.html",
+  "ranking.html",
+  "perfil.html"
+];
+
+function copyFrontendSourceToPublic() {
+  const sourcePath = frontendPathCandidates.find((candidate) => {
+    return candidate !== generatedPublicPath
+      && fs.existsSync(path.join(candidate, "login.html"))
+      && fs.existsSync(path.join(candidate, "css", "style.css"));
+  });
+
+  if (!sourcePath) return;
+
+  const publicNeedsSync = !fs.existsSync(path.join(generatedPublicPath, "login.html"))
+    || !fs.existsSync(path.join(generatedPublicPath, "register.html"))
+    || !fs.existsSync(path.join(generatedPublicPath, "css", "style.css"))
+    || !fs.existsSync(path.join(generatedPublicPath, "js", "api.js"));
+
+  if (!publicNeedsSync) return;
+
+  fs.mkdirSync(generatedPublicPath, { recursive: true });
+  fs.cpSync(sourcePath, generatedPublicPath, { recursive: true });
+  console.log(`Frontend copiado para public a partir de: ${sourcePath}`);
+}
 
 function ensureGeneratedFrontend() {
   if (!fs.existsSync(generatedPublicPath)) {
@@ -56,9 +88,14 @@ function ensureGeneratedFrontend() {
   }
 }
 
+copyFrontendSourceToPublic();
 ensureGeneratedFrontend();
 
 const frontendPath = frontendPathCandidates.find((candidate) => {
+  return fs.existsSync(path.join(candidate, "login.html"))
+    && fs.existsSync(path.join(candidate, "register.html"))
+    && fs.existsSync(path.join(candidate, "css", "style.css"));
+}) || frontendPathCandidates.find((candidate) => {
   return fs.existsSync(path.join(candidate, "page.html"))
     || fs.existsSync(path.join(candidate, "index.html"));
 });
@@ -102,6 +139,29 @@ app.get("/", (req, res) => {
     status: "online",
     message: "Frontend nao encontrado neste deploy. Use as rotas da API."
   });
+});
+
+function sendFrontendFile(fileName, res) {
+  const searchPaths = [
+    frontendPath,
+    generatedPublicPath,
+    ...frontendPathCandidates
+  ].filter(Boolean);
+
+  for (const candidate of searchPaths) {
+    const filePath = path.join(candidate, fileName);
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+  }
+
+  return res.status(404).json({
+    message: `Arquivo ${fileName} nao encontrado no frontend do deploy.`
+  });
+}
+
+frontendPageFiles.forEach((fileName) => {
+  app.get(`/${fileName}`, (req, res) => sendFrontendFile(fileName, res));
 });
 
 function registerModularRoutes() {
