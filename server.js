@@ -11,7 +11,18 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.PORT || 3000;
 const frontendOrigin = process.env.FRONTEND_ORIGIN || "*";
-const frontendPath = path.join(__dirname, "..", "frontend");
+const frontendPathCandidates = [
+  path.join(__dirname, "..", "frontend"),
+  path.join(process.cwd(), "..", "frontend"),
+  path.join(process.cwd(), "frontend"),
+  path.join(process.cwd(), "solo-leveling-system", "frontend"),
+  path.join(__dirname, "..", "..", "frontend"),
+  path.join(__dirname, "..", "..", "solo-leveling-system", "frontend")
+];
+const frontendPath = frontendPathCandidates.find((candidate) => {
+  return fs.existsSync(path.join(candidate, "page.html"))
+    || fs.existsSync(path.join(candidate, "index.html"));
+});
 const jwtSecret = process.env.JWT_SECRET || "daily-hunter-dev-secret";
 
 app.use(cors({
@@ -19,7 +30,12 @@ app.use(cors({
   credentials: frontendOrigin !== "*"
 }));
 app.use(express.json());
-app.use(express.static(frontendPath, { index: false }));
+if (frontendPath) {
+  console.log(`Frontend encontrado em: ${frontendPath}`);
+  app.use(express.static(frontendPath, { index: false }));
+} else {
+  console.warn("Frontend nao encontrado. Verifique se a pasta frontend foi enviada para o deploy.");
+}
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -29,9 +45,17 @@ app.get("/api/health", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  const pageFile = path.join(frontendPath, "page.html");
-  if (fs.existsSync(pageFile)) {
-    return res.sendFile(pageFile);
+  if (frontendPath) {
+    const pageFile = path.join(frontendPath, "page.html");
+    const indexFile = path.join(frontendPath, "index.html");
+
+    if (fs.existsSync(pageFile)) {
+      return res.sendFile(pageFile);
+    }
+
+    if (fs.existsSync(indexFile)) {
+      return res.sendFile(indexFile);
+    }
   }
 
   return res.json({
