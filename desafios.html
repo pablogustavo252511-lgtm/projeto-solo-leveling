@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafios - Daily Hunter</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div data-shell></div>
+  <main class="app-main">
+    <section class="page-title">
+      <span class="eyebrow">Missoes</span>
+      <h1>Desafios diarios</h1>
+      <p>Crie, conclua ou marque falhas nas missoes do hunter.</p>
+    </section>
+
+    <p data-message class="system-message"></p>
+
+    <section class="content-grid wide-left">
+      <article class="panel">
+        <div class="section-heading">
+          <h2>Lista de desafios</h2>
+          <select data-status-filter>
+            <option value="">Todos</option>
+            <option value="pendente">Pendentes</option>
+            <option value="concluido">Concluidos</option>
+            <option value="falhou">Falharam</option>
+          </select>
+        </div>
+        <div data-challenge-list class="card-grid"></div>
+      </article>
+
+      <article class="panel">
+        <h2 data-form-title>Novo desafio</h2>
+        <form data-challenge-form class="form-stack">
+          <label>Titulo<input name="title" required placeholder="Correr 2 km"></label>
+          <label>Descricao<textarea name="description" rows="4" placeholder="Detalhe a missao"></textarea></label>
+          <label>Dificuldade
+            <select name="difficulty">
+              <option value="facil">Facil</option>
+              <option value="normal" selected>Normal</option>
+              <option value="dificil">Dificil</option>
+            </select>
+          </label>
+          <label>Recompensa XP<input name="xp_reward" type="number" min="0" value="20"></label>
+          <label>Vencimento<input name="due_date" type="datetime-local"></label>
+          <div class="button-row">
+            <button type="submit">Salvar</button>
+            <button type="button" class="ghost-button" data-reset-form>Limpar</button>
+          </div>
+        </form>
+      </article>
+    </section>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/desafios.js"></script>
+</body>
+</html>

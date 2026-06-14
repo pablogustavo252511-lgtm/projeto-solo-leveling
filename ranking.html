@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Hunters - Daily Hunter</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div data-shell></div>
+  <main class="app-main">
+    <section class="page-title">
+      <span class="eyebrow">Ranking</span>
+      <h1>Top Hunters</h1>
+      <p>Ordenado por nivel, XP, missoes concluidas e bosses derrotados.</p>
+    </section>
+
+    <p data-message class="system-message"></p>
+
+    <section class="panel table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Posicao</th>
+            <th>Hunter</th>
+            <th>Nivel</th>
+            <th>XP</th>
+            <th>Rank</th>
+            <th>Missoes</th>
+            <th>Bosses</th>
+          </tr>
+        </thead>
+        <tbody data-ranking></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/ranking.js"></script>
+</body>
+</html>
+
