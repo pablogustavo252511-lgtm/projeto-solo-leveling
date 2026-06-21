@@ -1,12 +1,18 @@
 const fs = require("fs");
 const path = require("path");
 
-const backendDir = path.join(__dirname, "..");
-const publicDir = path.join(backendDir, "public");
-const sourceCandidates = [
-  path.join(backendDir, "..", "frontend"),
-  path.join(backendDir, "..", "..", "frontend"),
-  path.join(backendDir, "..", "..", "solo-leveling-system", "frontend")
+const rootDir = process.cwd();
+
+const backendCandidates = [
+  path.join(rootDir, "solo-leveling-system", "backend"),
+  path.join(rootDir, "backend"),
+  rootDir
+];
+
+const frontendCandidates = [
+  path.join(rootDir, "solo-leveling-system", "frontend"),
+  path.join(rootDir, "frontend"),
+  path.join(rootDir, "..", "frontend")
 ];
 
 function copyRecursive(source, target) {
@@ -26,12 +32,20 @@ function copyRecursive(source, target) {
   }
 }
 
-const sourceDir = sourceCandidates.find((candidate) => fs.existsSync(path.join(candidate, "page.html")));
+const backendDir = backendCandidates.find((candidate) => fs.existsSync(path.join(candidate, "server.js")));
+const frontendDir = frontendCandidates.find((candidate) => fs.existsSync(path.join(candidate, "page.html")));
 
-if (sourceDir) {
-  copyRecursive(sourceDir, publicDir);
-  console.log(`Frontend copiado para public a partir de: ${sourceDir}`);
-} else {
-  console.log("Frontend fonte nao encontrado; usando public existente ou fallback do servidor.");
+if (!backendDir) {
+  console.log("Backend nao encontrado; pulando sincronizacao do frontend.");
+  process.exit(0);
 }
+
+if (!frontendDir) {
+  console.log("Frontend fonte nao encontrado; usando public existente ou fallback do servidor.");
+  process.exit(0);
+}
+
+const publicDir = path.join(backendDir, "public");
+copyRecursive(frontendDir, publicDir);
+console.log(`Frontend copiado para ${publicDir}`);
 
