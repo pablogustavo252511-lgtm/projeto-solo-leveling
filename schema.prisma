@@ -56,11 +56,14 @@ model Challenge {
 model Boss {
   id             String     @id @default(uuid())
   user_id        String
+  challenge_id   String?
+  source         String     @default("manual")
   name           String
   level_required Int
   difficulty     String
   reward_xp      Int
   penalty        String
+  lock_reason    String?    @db.Text
   status         BossStatus @default(ativo)
   time_limit     DateTime
   created_at     DateTime   @default(now())

@@ -10,6 +10,7 @@ async function loadDashboard() {
       apiRequest("/history")
     ]);
 
+    if (enforceSystemLock(status, "dashboard")) return;
     setSession(getToken(), profile);
     renderPlayerStatus(status);
     renderTodayChallenges(challenges);
@@ -87,4 +88,3 @@ async function completeChallenge(id) {
 }
 
 loadDashboard();
-

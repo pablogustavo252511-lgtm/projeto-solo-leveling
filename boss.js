@@ -4,6 +4,7 @@ let currentBosses = [];
 
 async function loadBosses() {
   try {
+    await checkSystemLock("boss");
     const bosses = await apiRequest("/boss");
     currentBosses = bosses;
     renderBosses(bosses);

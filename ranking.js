@@ -2,6 +2,9 @@ mountAppShell("ranking");
 
 async function loadRanking() {
   try {
+    const playerStatus = await checkSystemLock("ranking");
+    if (playerStatus.locked) return;
+
     const ranking = await apiRequest("/ranking");
     const target = document.querySelector("[data-ranking]");
     target.innerHTML = ranking.map((hunter, index) => `
@@ -21,4 +24,3 @@ async function loadRanking() {
 }
 
 loadRanking();
-

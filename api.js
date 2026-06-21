@@ -22,6 +22,7 @@ function getStoredUser() {
 function clearSession() {
   localStorage.removeItem("hunter_token");
   localStorage.removeItem("hunter_user");
+  localStorage.removeItem("hunter_lock");
 }
 
 function requireAuth() {
@@ -55,6 +56,17 @@ async function apiRequest(path, options = {}) {
   const data = text ? JSON.parse(text) : {};
 
   if (!response.ok) {
+    if (data.locked) {
+      setLockState({
+        locked: true,
+        lock_message: data.message || "Sistema bloqueado. Enfrente o boss para continuar."
+      });
+
+      if (currentPageName() !== "boss.html") {
+        window.location.href = "boss.html?locked=1";
+      }
+    }
+
     throw new Error(data.message || "Erro na requisicao.");
   }
 
@@ -80,6 +92,8 @@ function renderShell(activePage) {
   const user = getStoredUser();
   const name = user?.nome || "Hunter";
   const rank = user?.rank || "E";
+  const lockState = getLockState();
+  const locked = lockState.locked;
 
   return `
     <aside class="sidebar">
@@ -88,11 +102,11 @@ function renderShell(activePage) {
         <span>Daily Hunter</span>
       </a>
       <nav class="nav">
-        <a class="${activePage === "dashboard" ? "active" : ""}" href="dashboard.html">Dashboard</a>
-        <a class="${activePage === "desafios" ? "active" : ""}" href="desafios.html">Desafios</a>
+        <a class="${activePage === "dashboard" ? "active" : ""} ${locked ? "locked-link" : ""}" href="${locked ? "boss.html?locked=1" : "dashboard.html"}">Dashboard</a>
+        <a class="${activePage === "desafios" ? "active" : ""} ${locked ? "locked-link" : ""}" href="${locked ? "boss.html?locked=1" : "desafios.html"}">Desafios</a>
         <a class="${activePage === "boss" ? "active" : ""}" href="boss.html">Boss</a>
-        <a class="${activePage === "ranking" ? "active" : ""}" href="ranking.html">Top Hunters</a>
-        <a class="${activePage === "perfil" ? "active" : ""}" href="perfil.html">Perfil</a>
+        <a class="${activePage === "ranking" ? "active" : ""} ${locked ? "locked-link" : ""}" href="${locked ? "boss.html?locked=1" : "ranking.html"}">Top Hunters</a>
+        <a class="${activePage === "perfil" ? "active" : ""} ${locked ? "locked-link" : ""}" href="${locked ? "boss.html?locked=1" : "perfil.html"}">Perfil</a>
       </nav>
     </aside>
     <header class="topbar">
@@ -108,6 +122,80 @@ function renderShell(activePage) {
   `;
 }
 
+function getLockState() {
+  try {
+    return JSON.parse(localStorage.getItem("hunter_lock")) || { locked: false };
+  } catch (error) {
+    return { locked: false };
+  }
+}
+
+function setLockState(status) {
+  const state = {
+    locked: Boolean(status?.locked),
+    message: status?.lock_message || "",
+    bosses: status?.lock_bosses || []
+  };
+
+  localStorage.setItem("hunter_lock", JSON.stringify(state));
+  return state;
+}
+
+function currentPageName() {
+  return (window.location.pathname.split("/").pop() || "dashboard.html").toLowerCase();
+}
+
+function showLockNotice(message) {
+  const existing = document.querySelector("[data-lock-notice]");
+  if (existing) {
+    existing.querySelector("p").textContent = message;
+    return;
+  }
+
+  const notice = document.createElement("section");
+  notice.className = "lock-notice";
+  notice.setAttribute("data-lock-notice", "");
+  notice.innerHTML = `
+    <strong>Sistema bloqueado</strong>
+    <p>${message}</p>
+    <a class="button" href="boss.html">Enfrentar boss</a>
+  `;
+
+  const main = document.querySelector(".app-main") || document.body;
+  main.prepend(notice);
+}
+
+function clearLockNotice() {
+  const notice = document.querySelector("[data-lock-notice]");
+  if (notice) notice.remove();
+}
+
+function enforceSystemLock(status, activePage) {
+  const lockState = setLockState(status);
+  const page = activePage ? `${activePage}.html` : currentPageName();
+  const isBossPage = page === "boss.html";
+
+  if (lockState.locked && !isBossPage) {
+    window.location.href = "boss.html?locked=1";
+    return true;
+  }
+
+  if (lockState.locked && isBossPage) {
+    showLockNotice(lockState.message || "Va para a aba Boss e derrote o boss para liberar o sistema.");
+    return false;
+  }
+
+  clearLockNotice();
+  return false;
+}
+
+async function checkSystemLock(activePage) {
+  const status = await apiRequest("/player/status");
+  setSession(getToken(), status);
+  enforceSystemLock(status, activePage);
+  return status;
+}
+
 function mountAppShell(activePage) {
   requireAuth();
   const shell = document.querySelector("[data-shell]");
@@ -117,8 +205,9 @@ function mountAppShell(activePage) {
 }
 
 async function syncSessionUser() {
-  const profile = await apiRequest("/profile");
+  const profile = await apiRequest("/player/status");
   setSession(getToken(), profile);
+  enforceSystemLock(profile);
   const shell = document.querySelector("[data-shell]");
   const activeLink = document.querySelector(".nav a.active");
   const activePage = activeLink ? activeLink.textContent.trim().toLowerCase() : "";

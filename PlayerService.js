@@ -1,5 +1,6 @@
 const prisma = require("../config/database");
 const HistoryService = require("./HistoryService");
+const SystemLockService = require("./SystemLockService");
 
 const XP_THRESHOLDS = {
   1: 100,
@@ -96,6 +97,7 @@ class PlayerService {
   }
 
   static async status(userId) {
+    const lockState = await SystemLockService.syncPenaltyState(userId);
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -126,7 +128,10 @@ class PlayerService {
     return {
       ...user,
       xp_next_level: getXpForNextLevel(user.level),
-      progress_percent: Math.min(Math.round((user.xp / getXpForNextLevel(user.level)) * 100), 100)
+      progress_percent: Math.min(Math.round((user.xp / getXpForNextLevel(user.level)) * 100), 100),
+      locked: lockState.locked,
+      lock_message: lockState.lock_message,
+      lock_bosses: lockState.lock_bosses
     };
   }
 
@@ -151,4 +156,3 @@ class PlayerService {
 }
 
 module.exports = PlayerService;
-

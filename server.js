@@ -165,6 +165,7 @@ function generatedAppPage(title, message) {
     .main{padding:30px clamp(22px,4vw,64px) 54px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}.system{color:var(--cyan);text-transform:uppercase;font-size:12px;font-weight:900;letter-spacing:.08em}.top-actions{display:flex;align-items:center;gap:12px}.rank-pill,.level-pill{padding:10px 13px;border:1px solid rgba(24,216,255,.36);border-radius:999px;background:rgba(24,216,255,.08);color:#dff9ff}.ghost-button,.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 15px;border:1px solid rgba(238,248,255,.25);border-radius:8px;background:rgba(255,255,255,.02);color:#fff;font:inherit;cursor:pointer}.button{border-color:var(--line-strong);background:linear-gradient(135deg,rgba(24,216,255,.18),rgba(141,92,255,.18));box-shadow:0 0 20px rgba(24,216,255,.1)}.danger{border-color:rgba(255,79,139,.54);color:#ffd7e5}.ok{border-color:rgba(44,255,173,.54);color:#dcfff3}
     .hero-panel{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:24px;align-items:center;padding:30px;border:1px solid var(--line);border-radius:8px;background:linear-gradient(135deg,rgba(13,22,42,.92),rgba(7,11,23,.74));box-shadow:0 24px 70px rgba(0,0,0,.3),0 0 40px rgba(24,216,255,.08)}.hero-panel:after{content:"";position:absolute;right:-120px;top:-140px;width:360px;aspect-ratio:1;border-radius:50%;border:1px solid rgba(24,216,255,.22);box-shadow:inset 0 0 60px rgba(24,216,255,.11),0 0 70px rgba(141,92,255,.14)}h1{position:relative;margin:7px 0 12px;font-size:clamp(48px,7.8vw,96px);line-height:.9;letter-spacing:0;text-shadow:0 0 22px rgba(24,216,255,.18)}.subtitle{position:relative;max-width:760px;margin:0;color:var(--muted);font-size:17px;line-height:1.6}.core{position:relative;z-index:1;display:grid;place-items:center;text-align:center;justify-self:end;width:170px;height:170px;border:1px solid rgba(24,216,255,.5);border-radius:50%;background:radial-gradient(circle,rgba(24,216,255,.13),rgba(5,7,15,.86) 65%);box-shadow:0 0 40px rgba(24,216,255,.22)}.core strong{font-size:34px}.core small{color:var(--muted)}
     .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}.metric,.card,.list-item,.panel{border:1px solid rgba(24,216,255,.2);border-radius:8px;background:var(--panel);box-shadow:0 0 28px rgba(24,216,255,.06)}.metric{padding:17px}.metric span,.label{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:800}.metric strong{display:block;margin-top:8px;font-size:28px}.xp-track{height:10px;margin-top:12px;overflow:hidden;border-radius:999px;background:rgba(238,248,255,.1)}.xp-fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 18px rgba(24,216,255,.5);transition:width .45s ease}.content-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.card{padding:22px}.card h2{margin:0 0 15px;font-size:22px}.list{display:grid;gap:12px}.list-item{padding:15px}.list-item header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}.list-item h3{margin:0;font-size:18px}.list-item p{margin:7px 0;color:#b7c6d5;line-height:1.5}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}.chip{display:inline-flex;align-items:center;padding:6px 9px;border:1px solid rgba(24,216,255,.22);border-radius:999px;background:rgba(24,216,255,.07);color:#dff9ff;font-size:12px}.chip.danger{border-color:rgba(255,79,139,.42);color:#ff9fc0;background:rgba(255,79,139,.09)}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.empty{padding:18px;border:1px dashed rgba(238,248,255,.18);border-radius:8px;color:var(--muted);text-align:center}.form-grid{display:grid;gap:12px}.form-grid label{display:grid;gap:7px;color:#abd2f5;font-size:14px}.form-grid input,.form-grid textarea,.form-grid select{width:100%;min-height:43px;padding:12px;border:1px solid rgba(238,248,255,.18);border-radius:8px;background:#050913;color:#fff;font:inherit}.form-grid textarea{min-height:100px;resize:vertical}.leader-row{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center}.place{display:grid;place-items:center;width:42px;height:42px;border-radius:8px;border:1px solid var(--line);color:var(--cyan);background:rgba(24,216,255,.08);font-weight:900}.message{min-height:22px;margin:12px 0 0;color:var(--ok)}.message.error{color:var(--danger)}
+    .lock-banner{display:none;margin:18px 0 0;padding:16px;border:1px solid rgba(255,79,139,.55);border-radius:8px;background:linear-gradient(135deg,rgba(255,79,139,.16),rgba(141,92,255,.16));box-shadow:0 0 34px rgba(255,79,139,.12)}.lock-banner.show{display:grid;gap:8px}.lock-banner strong{color:var(--danger);text-transform:uppercase}.nav a.locked{opacity:.55}.nav a.locked:after{content:" bloqueado";color:var(--danger);font-size:11px}
     @media(max-width:1050px){.shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.nav{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:22px}.hero-panel,.content-grid{grid-template-columns:1fr}.core{justify-self:start}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:720px){.main{padding:20px 14px 36px}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between}.nav{grid-template-columns:1fr 1fr}.hero-panel{padding:22px}.metrics{grid-template-columns:1fr}h1{font-size:48px}.core{width:140px;height:140px}.content-grid{gap:14px}}
   </style>
 </head>
@@ -205,6 +206,11 @@ function generatedAppPage(title, message) {
         </div>
       </section>
 
+      <section class="lock-banner" data-lock-banner>
+        <strong>Sistema bloqueado</strong>
+        <p data-lock-message>Va para a aba Boss e derrote o boss para liberar o sistema.</p>
+      </section>
+
       <section class="metrics">
         <article class="metric"><span>Nivel</span><strong data-level>1</strong></article>
         <article class="metric"><span>XP atual</span><strong data-xp>0</strong><div class="xp-track"><div class="xp-fill" data-xp-fill></div></div></article>
@@ -230,6 +236,38 @@ function generatedAppPage(title, message) {
       localStorage.clear();
       location.href = "/login.html";
     });
+
+    function applyLockState() {
+      const player = state.profile || {};
+      const locked = Boolean(player.locked);
+      const message = player.lock_message || "Va para a aba Boss e derrote o boss para liberar o sistema.";
+      const banner = document.querySelector("[data-lock-banner]");
+      const bannerMessage = document.querySelector("[data-lock-message]");
+      const links = document.querySelectorAll(".nav a");
+
+      links.forEach(function(link) {
+        const isBossLink = link.getAttribute("href") === "/boss.html";
+        link.classList.toggle("locked", locked && !isBossLink);
+        if (locked && !isBossLink) {
+          link.setAttribute("href", "/boss.html?locked=1");
+        }
+      });
+
+      if (locked && pageName !== "boss") {
+        location.href = "/boss.html?locked=1";
+        return true;
+      }
+
+      if (banner) {
+        banner.classList.toggle("show", locked);
+      }
+
+      if (bannerMessage) {
+        bannerMessage.textContent = message;
+      }
+
+      return false;
+    }
 
     function html(value) {
       return String(value == null ? "" : value).replace(/[&<>"']/g, function(char) {
@@ -350,6 +388,7 @@ function generatedAppPage(title, message) {
 
     function render() {
       updateHud();
+      if (applyLockState()) return;
       if (pageName === "desafios") return renderChallenges();
       if (pageName === "boss") return renderBoss();
       if (pageName === "ranking") return renderRanking();
@@ -948,7 +987,8 @@ app.use((req, res) => {
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;
   res.status(statusCode).json({
-    message: error.message || "Erro interno do servidor."
+    message: error.message || "Erro interno do servidor.",
+    ...(error.locked ? { locked: true } : {})
   });
 });
 

@@ -615,6 +615,39 @@ small {
   min-height: 1.4rem;
 }
 
+.lock-notice {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid rgba(255, 79, 139, 0.55);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 79, 139, 0.16), rgba(141, 92, 255, 0.14)),
+    rgba(10, 16, 31, 0.92);
+  box-shadow: 0 0 34px rgba(255, 79, 139, 0.12);
+  padding: 1rem;
+}
+
+.lock-notice strong {
+  color: var(--danger);
+  text-transform: uppercase;
+}
+
+.lock-notice p {
+  margin: 0;
+  color: var(--text);
+}
+
+.locked-link {
+  opacity: 0.58;
+}
+
+.locked-link::after {
+  content: " bloqueado";
+  color: var(--danger);
+  font-size: 0.72rem;
+}
+
 .table-panel {
   overflow-x: auto;
 }

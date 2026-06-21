@@ -3,9 +3,11 @@ const HistoryService = require("./HistoryService");
 const PlayerService = require("./PlayerService");
 const BossService = require("./BossService");
 const MissionXpService = require("./MissionXpService");
+const SystemLockService = require("./SystemLockService");
 
 class ChallengeService {
   static async list(userId, status) {
+    await SystemLockService.assertUnlocked(userId);
     return prisma.challenge.findMany({
       where: {
         user_id: userId,
@@ -16,6 +18,7 @@ class ChallengeService {
   }
 
   static async create(userId, payload) {
+    await SystemLockService.assertUnlocked(userId);
     if (!payload.title || !payload.title.trim()) {
       const error = new Error("Titulo do desafio e obrigatorio.");
       error.statusCode = 400;
@@ -39,6 +42,7 @@ class ChallengeService {
   }
 
   static async update(userId, challengeId, payload) {
+    await SystemLockService.assertUnlocked(userId);
     const challenge = await this.findOwned(userId, challengeId);
     if (payload.title !== undefined && !payload.title.trim()) {
       const error = new Error("Titulo do desafio e obrigatorio.");
@@ -76,6 +80,7 @@ class ChallengeService {
   }
 
   static async remove(userId, challengeId) {
+    await SystemLockService.assertUnlocked(userId);
     const challenge = await this.findOwned(userId, challengeId);
     await prisma.challenge.delete({ where: { id: challenge.id } });
     await HistoryService.register(userId, "desafio_excluido", `Desafio excluido: ${challenge.title}.`, 0);
@@ -83,6 +88,7 @@ class ChallengeService {
   }
 
   static async complete(userId, challengeId) {
+    await SystemLockService.assertUnlocked(userId);
     const challenge = await this.findOwned(userId, challengeId);
     if (challenge.status === "concluido") {
       const error = new Error("Desafio ja foi concluido.");
@@ -106,6 +112,7 @@ class ChallengeService {
   }
 
   static async fail(userId, challengeId) {
+    await SystemLockService.assertUnlocked(userId);
     const challenge = await this.findOwned(userId, challengeId);
     if (challenge.status === "falhou") {
       const error = new Error("Desafio ja esta marcado como falhou.");

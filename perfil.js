@@ -8,6 +8,7 @@ async function loadProfile() {
       apiRequest("/history")
     ]);
 
+    if (enforceSystemLock(status, "perfil")) return;
     setSession(getToken(), profile);
     document.querySelector("[data-profile]").innerHTML = `
       <div class="profile-grid">
@@ -33,4 +34,3 @@ async function loadProfile() {
 }
 
 loadProfile();
-

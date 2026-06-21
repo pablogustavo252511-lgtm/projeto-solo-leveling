@@ -1,6 +1,7 @@
 const prisma = require("../config/database");
 const HistoryService = require("./HistoryService");
 const PlayerService = require("./PlayerService");
+const SystemLockService = require("./SystemLockService");
 
 function defaultBossForLevel(level) {
   if (level >= 3) {
@@ -38,6 +39,7 @@ function hoursFromNow(hours) {
 
 class BossService {
   static async listActive(userId) {
+    await SystemLockService.syncPenaltyState(userId);
     return prisma.boss.findMany({
       where: { user_id: userId },
       orderBy: [{ status: "asc" }, { created_at: "desc" }]
@@ -56,11 +58,14 @@ class BossService {
     const boss = await prisma.boss.create({
       data: {
         user_id: userId,
+        challenge_id: payload.challenge_id || null,
+        source: payload.source || "manual",
         name: payload.name || base.name,
         level_required: Number(payload.level_required) || base.level_required,
         difficulty: payload.difficulty || base.difficulty,
         reward_xp: Math.max(Number(payload.reward_xp) || base.reward_xp, 0),
         penalty: payload.penalty || base.penalty,
+        lock_reason: payload.lock_reason || null,
         status: "ativo",
         time_limit: payload.time_limit ? new Date(payload.time_limit) : hoursFromNow(24)
       }
@@ -125,6 +130,21 @@ class BossService {
     );
 
     await HistoryService.register(userId, "boss_falhou", `Boss falhou: ${boss.name}.`, 0);
+
+    if (boss.source === "overdue") {
+      const replacement = await this.create(userId, {
+        source: "overdue",
+        challenge_id: boss.challenge_id,
+        lock_reason: boss.lock_reason || "Derrote o boss para desbloquear o sistema."
+      });
+      return {
+        boss: updatedBoss,
+        nextBoss: replacement,
+        player,
+        message: "Boss falhou. O sistema continua bloqueado ate voce derrotar o novo boss."
+      };
+    }
+
     return { boss: updatedBoss, player, message: "Boss falhou" };
   }
 
@@ -136,6 +156,12 @@ class BossService {
     if (!boss) {
       const error = new Error("Boss nao encontrado.");
       error.statusCode = 404;
+      throw error;
+    }
+
+    if (boss.status === "ativo" && boss.source === "overdue") {
+      const error = new Error("Este boss bloqueia o sistema. Derrote o boss para desbloquear.");
+      error.statusCode = 423;
       throw error;
     }
 

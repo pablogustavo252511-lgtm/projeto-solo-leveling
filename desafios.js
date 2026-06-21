@@ -13,6 +13,9 @@ function getTomorrowLocalInputValue() {
 async function syncChallenges(status = activeStatusFilter) {
   activeStatusFilter = status;
   try {
+    const playerStatus = await checkSystemLock("desafios");
+    if (playerStatus.locked) return;
+
     const path = status ? `/challenges?status=${status}` : "/challenges";
     const challenges = await apiRequest(path);
     currentChallenges = challenges;
