@@ -7,10 +7,31 @@ const fs = require("fs");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {
-  shouldUseLocalDatabase,
-  hasUsableDatabaseUrl
-} = require("./config/storageMode");
+
+function getDatabaseUrl() {
+  return String(process.env.DATABASE_URL || "").trim();
+}
+
+function hasUsableDatabaseUrl() {
+  const url = getDatabaseUrl();
+  if (!url) return false;
+
+  return ![
+    "USER:PASSWORD",
+    "HOST:5432",
+    "DATABASE",
+    "cole_a_internal_database_url",
+    "sua_url_real_do_banco"
+  ].some((placeholder) => url.includes(placeholder));
+}
+
+function shouldUseLocalDatabase() {
+  if (process.env.USE_LOCAL_DB !== undefined) {
+    return process.env.USE_LOCAL_DB === "true";
+  }
+
+  return !hasUsableDatabaseUrl();
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
