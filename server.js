@@ -7,6 +7,10 @@ const fs = require("fs");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const {
+  shouldUseLocalDatabase,
+  hasUsableDatabaseUrl
+} = require("./config/storageMode");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -525,7 +529,10 @@ if (frontendPath) {
 app.get("/api/health", (req, res) => {
   res.json({
     name: "Solo Leveling - Daily Hunter System API",
-    status: "online"
+    status: "online",
+    storage: shouldUseLocalDatabase() ? "local-json" : "postgres",
+    persistent_storage: !shouldUseLocalDatabase(),
+    database_configured: hasUsableDatabaseUrl()
   });
 });
 
@@ -977,6 +984,12 @@ function registerFallbackRoutes() {
 }
 
 if (!registerModularRoutes()) {
+  if (!shouldUseLocalDatabase()) {
+    throw new Error(
+      "Rotas modulares/Prisma falharam e USE_LOCAL_DB=false. Corrija DATABASE_URL/Prisma em vez de usar JSON local, para nao perder contas em deploys."
+    );
+  }
+
   registerFallbackRoutes();
 }
 
