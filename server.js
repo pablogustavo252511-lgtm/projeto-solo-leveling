@@ -360,7 +360,7 @@ function generatedAppPage(title, message) {
     function renderChallenges() {
       content.innerHTML = '<article class="card"><h2>Lista de desafios</h2><div class="list">'
         + (state.challenges.length ? state.challenges.map(challengeCard).join("") : '<p class="empty">Nenhum desafio criado.</p>')
-        + '</div></article><article class="card"><h2>Novo desafio</h2><form class="form-grid" data-challenge-form><label>Titulo<input name="title" required placeholder="Correr 2 km"></label><label>Descricao<textarea name="description" placeholder="Detalhe a missao"></textarea></label><label>Dificuldade<select name="difficulty"><option>Facil</option><option selected>Normal</option><option>Dificil</option><option>Insano</option></select></label><label>Vencimento<input name="due_date" type="datetime-local"></label><button class="button" type="submit">Criar missao</button><p class="message" data-form-message></p></form></article>';
+        + '</div></article><article class="card"><h2>Novo desafio</h2><form class="form-grid" data-challenge-form><label>Titulo<input name="title" required placeholder="Correr 2 km"></label><label>Descricao<textarea name="description" placeholder="Detalhe a missao"></textarea></label><label>Dificuldade<select name="difficulty"><option>Facil</option><option selected>Normal</option><option>Dificil</option><option>Insano</option></select></label><label>Vencimento<input name="due_date" type="date"></label><button class="button" type="submit">Criar missao</button><p class="message" data-form-message></p></form></article>';
       document.querySelector("[data-challenge-form]").addEventListener("submit", submitChallenge);
     }
 

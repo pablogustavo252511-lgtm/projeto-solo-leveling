@@ -7,7 +7,7 @@ let activeStatusFilter = "";
 function getTomorrowLocalInputValue() {
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
   tomorrow.setMinutes(tomorrow.getMinutes() - tomorrow.getTimezoneOffset());
-  return tomorrow.toISOString().slice(0, 16);
+  return tomorrow.toISOString().slice(0, 10);
 }
 
 async function syncChallenges(status = activeStatusFilter) {
@@ -64,7 +64,7 @@ function startEdit(challengeId) {
   form.title.value = challenge.title;
   form.description.value = challenge.description || "";
   form.difficulty.value = challenge.difficulty;
-  form.due_date.value = challenge.due_date ? challenge.due_date.slice(0, 16) : "";
+  form.due_date.value = challenge.due_date ? challenge.due_date.slice(0, 10) : "";
   document.querySelector("[data-form-title]").textContent = "Editar desafio";
 }
 
