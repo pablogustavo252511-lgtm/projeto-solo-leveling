@@ -3,14 +3,17 @@ services:
     name: projeto-solo-leveling
     runtime: node
     plan: free
+    region: oregon
     rootDir: solo-leveling-system/backend
-    buildCommand: npm install
+    buildCommand: npm install && npx prisma generate --schema prisma/schema.prisma
+    preDeployCommand: npx prisma db push --schema prisma/schema.prisma
     startCommand: node server.js
     envVars:
       - key: USE_LOCAL_DB
-        value: "true"
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
       - key: FRONTEND_ORIGIN
         value: "*"
       - key: JWT_SECRET
         generateValue: true
-
