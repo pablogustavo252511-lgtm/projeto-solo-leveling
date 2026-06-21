@@ -356,7 +356,7 @@ function generatedAppPage(title, message) {
         + '<header><h3>' + html(item.title) + '</h3><span class="' + itemStatusClass(item.status) + '">' + html(item.status || "pendente") + '</span></header>'
         + '<p>' + html(item.description || "Sem descricao.") + '</p>'
         + '<div class="chips"><span class="chip">' + html(item.difficulty || "normal") + '</span><span class="chip">' + Number(item.xp_reward || 0) + ' XP</span><span class="chip">' + dateLabel(item.due_date) + '</span></div>'
-        + '<div class="actions"><button class="button ok" data-action="complete-challenge" data-id="' + html(item.id) + '">Concluir</button><button class="ghost-button danger" data-action="fail-challenge" data-id="' + html(item.id) + '">Falhar</button><button class="ghost-button" data-action="delete-challenge" data-id="' + html(item.id) + '">Excluir</button></div>'
+        + '<div class="actions"><button class="button ok" data-action="complete-challenge" data-id="' + html(item.id) + '">Concluir</button><button class="ghost-button" data-action="delete-challenge" data-id="' + html(item.id) + '">Excluir</button></div>'
         + '</article>';
     }
 
@@ -465,7 +465,6 @@ function generatedAppPage(title, message) {
       const id = button.getAttribute("data-id");
       let request = null;
       if (action === "complete-challenge") request = api("/challenges/" + id + "/complete", { method: "PATCH" });
-      if (action === "fail-challenge") request = api("/challenges/" + id + "/fail", { method: "PATCH" });
       if (action === "delete-challenge" && confirm("Excluir esta missao?")) request = api("/challenges/" + id, { method: "DELETE" });
       if (action === "spawn-boss") request = api("/boss", { method: "POST", body: JSON.stringify({}) });
       if (action === "defeat-boss") request = api("/boss/" + id + "/defeat", { method: "PATCH" });
@@ -901,29 +900,9 @@ function registerFallbackRoutes() {
   });
 
   app.patch("/challenges/:id/fail", auth, (req, res) => {
-    const challenge = req.db.challenges.find((item) => item.id === req.params.id && item.user_id === req.user.id);
-    if (!challenge) return res.status(404).json({ message: "Desafio nao encontrado." });
-    challenge.status = "falhou";
-    req.user.xp = Math.max(req.user.xp - Math.max(Math.ceil(challenge.xp_reward / 2), 5), 0);
-    req.user.rank = calculateRank(req.user.level, req.user.xp);
-    const [name, levelRequired, difficulty, rewardXp, penalty] = defaultBoss(req.user.level);
-    const boss = {
-      id: crypto.randomUUID(),
-      user_id: req.user.id,
-      name,
-      level_required: levelRequired,
-      difficulty,
-      reward_xp: rewardXp,
-      penalty,
-      status: "ativo",
-      time_limit: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      created_at: now(),
-      updated_at: now()
-    };
-    req.db.bosses.push(boss);
-    registerHistory(req.db, req.user.id, "missao_falhou", `Missao Falhou: ${challenge.title}.`, 0);
-    writeDb(req.db);
-    res.json({ challenge, boss, player: publicUser(req.user), message: "Missao Falhou" });
+    res.status(400).json({
+      message: "A missao nao pode falhar por clique. Ela so falha automaticamente quando passar do vencimento."
+    });
   });
 
   app.get("/boss", auth, (req, res) => {

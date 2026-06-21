@@ -47,7 +47,6 @@ function renderChallenges(challenges) {
       <small>Dificuldade: ${challenge.difficulty} | Vence: ${formatDate(challenge.due_date)}</small>
       <div class="button-row">
         <button ${challenge.status !== "pendente" ? "disabled" : ""} onclick="completeChallenge('${challenge.id}')">Concluir</button>
-        <button ${challenge.status !== "pendente" ? "disabled" : ""} class="warning" onclick="failChallenge('${challenge.id}')">Falhou</button>
         <button class="ghost-button" onclick="startEdit('${challenge.id}')">Editar</button>
         <button class="danger" onclick="deleteChallenge('${challenge.id}')">Excluir</button>
       </div>
@@ -112,17 +111,6 @@ async function completeChallenge(id) {
   try {
     const result = await apiRequest(`/challenges/${id}/complete`, { method: "PATCH" });
     showMessage(result.message, "success");
-    await syncChallenges();
-    await syncSessionUser();
-  } catch (error) {
-    showMessage(error.message, "error");
-  }
-}
-
-async function failChallenge(id) {
-  try {
-    const result = await apiRequest(`/challenges/${id}/fail`, { method: "PATCH" });
-    showMessage(result.message, "error");
     await syncChallenges();
     await syncSessionUser();
   } catch (error) {

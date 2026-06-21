@@ -50,6 +50,52 @@ function isExpired(dateValue) {
   return Number.isFinite(dueDate.getTime()) && dueDate.getTime() < Date.now();
 }
 
+function getXpForNextLevel(level) {
+  return ({ 1: 100, 2: 250, 3: 500, 4: 1000 })[level] || level * 500;
+}
+
+async function restorePrematureFailures(userId) {
+  const failedChallenges = await prisma.challenge.findMany({
+    where: { user_id: userId, status: "falhou" }
+  });
+
+  for (const challenge of failedChallenges) {
+    if (isExpired(challenge.due_date)) continue;
+
+    await prisma.challenge.update({
+      where: { id: challenge.id },
+      data: { status: "pendente" }
+    });
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (user) {
+      const restoredXp = Math.max(Math.ceil(Number(challenge.xp_reward || 0) / 2), 5);
+      let nextXp = Math.max(Number(user.xp || 0) + restoredXp, 0);
+      let nextLevel = Number(user.level || 1);
+
+      while (nextXp >= getXpForNextLevel(nextLevel)) {
+        nextLevel += 1;
+      }
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          xp: nextXp,
+          level: nextLevel,
+          rank: calculateRank(nextLevel, nextXp)
+        }
+      });
+    }
+
+    await HistoryService.register(
+      userId,
+      "falha_corrigida",
+      `Falha manual corrigida: ${challenge.title} voltou para pendente porque ainda nao venceu.`,
+      0
+    );
+  }
+}
+
 async function createPenaltyBoss(user, challenge) {
   const existing = await prisma.boss.findFirst({
     where: {
@@ -87,6 +133,8 @@ async function createPenaltyBoss(user, challenge) {
 
 class SystemLockService {
   static async syncPenaltyState(userId) {
+    await restorePrematureFailures(userId);
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       const error = new Error("Usuario nao encontrado.");

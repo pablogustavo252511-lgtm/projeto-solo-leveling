@@ -112,29 +112,9 @@ class ChallengeService {
   }
 
   static async fail(userId, challengeId) {
-    await SystemLockService.assertUnlocked(userId);
-    const challenge = await this.findOwned(userId, challengeId);
-    if (challenge.status === "falhou") {
-      const error = new Error("Desafio ja esta marcado como falhou.");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const updated = await prisma.challenge.update({
-      where: { id: challenge.id },
-      data: { status: "falhou" }
-    });
-
-    const penaltyValue = Math.max(Math.ceil(updated.xp_reward / 2), 5);
-    const player = await PlayerService.applyPenalty(
-      userId,
-      penaltyValue,
-      `Missao Falhou: ${updated.title}.`
-    );
-    const boss = await BossService.create(userId);
-
-    await HistoryService.register(userId, "missao_falhou", `Missao Falhou: ${updated.title}.`, -penaltyValue);
-    return { challenge: updated, player, boss, message: "Missao Falhou" };
+    const error = new Error("A missao nao pode falhar por clique. Ela so falha automaticamente quando passar do vencimento.");
+    error.statusCode = 400;
+    throw error;
   }
 
   static async findOwned(userId, challengeId) {
