@@ -76,11 +76,7 @@ async function migrate() {
           updated_at: parseDate(user.updated_at)
         },
         update: {
-          nome: user.nome || "Hunter",
-          senha: user.senha,
-          level: Math.max(Number(user.level) || 1, 1),
-          xp: Math.max(Number(user.xp) || 0, 0),
-          rank: user.rank || "E"
+          nome: user.nome || "Hunter"
         }
       });
 

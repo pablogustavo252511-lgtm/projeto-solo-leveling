@@ -22,7 +22,7 @@ async function handleRegister(event) {
   const form = new FormData(event.target);
 
   try {
-    await apiRequest("/register", {
+    const result = await apiRequest("/register", {
       method: "POST",
       body: JSON.stringify({
         nome: form.get("nome"),
@@ -31,7 +31,9 @@ async function handleRegister(event) {
       })
     });
     clearSession();
-    window.location.href = "login.html?registered=1";
+    window.location.href = result.account_recovered
+      ? "login.html?recovered=1"
+      : "login.html?registered=1";
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -49,5 +51,9 @@ if (document.querySelector("[data-login-form]")) {
   const params = new URLSearchParams(window.location.search);
   if (params.get("registered") === "1") {
     showMessage("Conta criada. Agora faca login para entrar no sistema.", "success");
+  }
+
+  if (params.get("recovered") === "1") {
+    showMessage("Senha atualizada. Agora faca login com a nova senha.", "success");
   }
 }

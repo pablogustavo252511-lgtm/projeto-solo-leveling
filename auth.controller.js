@@ -4,7 +4,7 @@ class AuthController {
   static async register(req, res, next) {
     try {
       const result = await AuthService.register(req.body);
-      return res.status(201).json(result);
+      return res.status(result.account_recovered ? 200 : 201).json(result);
     } catch (error) {
       return next(error);
     }
@@ -30,4 +30,3 @@ class AuthController {
 }
 
 module.exports = AuthController;
-

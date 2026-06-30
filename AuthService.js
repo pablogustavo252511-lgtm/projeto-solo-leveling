@@ -22,9 +22,28 @@ class AuthService {
     const normalizedEmail = email.toLowerCase().trim();
     const exists = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (exists) {
-      const error = new Error("Email ja cadastrado.");
-      error.statusCode = 409;
-      throw error;
+      const hashedPassword = await bcrypt.hash(senha, 10);
+      const user = await prisma.user.update({
+        where: { id: exists.id },
+        data: {
+          nome: nome.trim() || exists.nome,
+          senha: hashedPassword
+        }
+      });
+
+      await HistoryService.register(
+        user.id,
+        "conta_recuperada",
+        "Senha da conta atualizada pela tela de cadastro. Progresso preservado.",
+        0
+      );
+
+      return {
+        user: sanitizeUser(user),
+        token: null,
+        account_recovered: true,
+        message: "Conta encontrada. Senha atualizada. Agora faca login com essa senha."
+      };
     }
 
     const hashedPassword = await bcrypt.hash(senha, 10);
@@ -96,4 +115,3 @@ class AuthService {
 }
 
 module.exports = AuthService;
-

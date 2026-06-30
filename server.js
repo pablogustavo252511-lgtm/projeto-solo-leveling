@@ -820,8 +820,20 @@ function registerFallbackRoutes() {
 
       const db = readDb();
       const normalizedEmail = email.toLowerCase().trim();
-      if (db.users.some((user) => user.email === normalizedEmail)) {
-        return res.status(409).json({ message: "Email ja cadastrado." });
+      const existingUser = db.users.find((user) => user.email === normalizedEmail);
+      if (existingUser) {
+        existingUser.nome = nome.trim() || existingUser.nome;
+        existingUser.senha = await bcrypt.hash(senha, 10);
+        existingUser.updated_at = now();
+        registerHistory(db, existingUser.id, "conta_recuperada", "Senha da conta atualizada pela tela de cadastro. Progresso preservado.", 0);
+        writeDb(db);
+
+        return res.status(200).json({
+          user: publicUser(existingUser),
+          token: null,
+          account_recovered: true,
+          message: "Conta encontrada. Senha atualizada. Agora faca login com essa senha."
+        });
       }
 
       const user = {
