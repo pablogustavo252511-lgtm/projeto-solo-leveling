@@ -7,7 +7,31 @@ const fs = require("fs");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { parseMissionDueDate } = require("./services/DateService");
+
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function parseMissionDueDate(value) {
+  const fallbackDate = new Date().toISOString().slice(0, 10);
+  const dateText = value ? String(value).trim() : fallbackDate;
+
+  if (DATE_ONLY_PATTERN.test(dateText)) {
+    return new Date(`${dateText}T23:59:59.999-03:00`);
+  }
+
+  const parsed = new Date(dateText);
+  if (!Number.isFinite(parsed.getTime())) {
+    return new Date(`${fallbackDate}T23:59:59.999-03:00`);
+  }
+
+  const isLegacyMidnightUtc = parsed.getUTCHours() === 0
+    && parsed.getUTCMinutes() === 0
+    && parsed.getUTCSeconds() === 0
+    && parsed.getUTCMilliseconds() === 0;
+
+  return isLegacyMidnightUtc
+    ? new Date(`${parsed.toISOString().slice(0, 10)}T23:59:59.999-03:00`)
+    : parsed;
+}
 
 function getDatabaseUrl() {
   return String(process.env.DATABASE_URL || "").trim();

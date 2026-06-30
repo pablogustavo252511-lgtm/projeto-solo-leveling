@@ -1,6 +1,35 @@
 const prisma = require("../config/database");
 const HistoryService = require("./HistoryService");
-const { isMissionExpired } = require("./DateService");
+
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function parseMissionDueDate(value) {
+  const fallbackDate = new Date().toISOString().slice(0, 10);
+  const dateText = value ? String(value).trim() : fallbackDate;
+
+  if (DATE_ONLY_PATTERN.test(dateText)) {
+    return new Date(`${dateText}T23:59:59.999-03:00`);
+  }
+
+  const parsed = new Date(dateText);
+  if (!Number.isFinite(parsed.getTime())) {
+    return new Date(`${fallbackDate}T23:59:59.999-03:00`);
+  }
+
+  const isLegacyMidnightUtc = parsed.getUTCHours() === 0
+    && parsed.getUTCMinutes() === 0
+    && parsed.getUTCSeconds() === 0
+    && parsed.getUTCMilliseconds() === 0;
+
+  return isLegacyMidnightUtc
+    ? new Date(`${parsed.toISOString().slice(0, 10)}T23:59:59.999-03:00`)
+    : parsed;
+}
+
+function isMissionExpired(value) {
+  const dueDate = parseMissionDueDate(value);
+  return Number.isFinite(dueDate.getTime()) && dueDate.getTime() < Date.now();
+}
 
 function calculateRank(level, xp) {
   if (level >= 20 || xp >= 10000) return "S";
