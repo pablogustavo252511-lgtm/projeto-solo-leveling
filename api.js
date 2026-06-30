@@ -1,6 +1,8 @@
 const savedApiBaseUrl = localStorage.getItem("api_base_url");
 const API_BASE_URL = savedApiBaseUrl
-  || (window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin);
+  && (window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+  ? savedApiBaseUrl
+  : (window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin);
 
 function getToken() {
   return localStorage.getItem("hunter_token");

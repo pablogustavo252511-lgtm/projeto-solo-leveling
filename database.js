@@ -20,6 +20,10 @@ function shouldUseLocalDatabase() {
     return process.env.USE_LOCAL_DB === "true";
   }
 
+  if (process.env.RENDER) {
+    return false;
+  }
+
   return !hasUsableDatabaseUrl();
 }
 

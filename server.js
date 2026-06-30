@@ -30,12 +30,16 @@ function shouldUseLocalDatabase() {
     return process.env.USE_LOCAL_DB === "true";
   }
 
+  if (process.env.RENDER) {
+    return false;
+  }
+
   return !hasUsableDatabaseUrl();
 }
 
 const app = express();
 const port = process.env.PORT || 3000;
-const frontendOrigin = process.env.FRONTEND_ORIGIN || "*";
+const frontendOrigin = process.env.FRONTEND_ORIGIN || process.env.FRONTEND_ORIGI || "*";
 const frontendPathCandidates = [
   path.join(__dirname, "public"),
   path.join(__dirname, "..", "frontend"),
@@ -532,7 +536,7 @@ const frontendPath = frontendPathCandidates.find((candidate) => {
   return fs.existsSync(path.join(candidate, "page.html"))
     || fs.existsSync(path.join(candidate, "index.html"));
 });
-const jwtSecret = process.env.JWT_SECRET || "daily-hunter-dev-secret";
+const jwtSecret = process.env.JWT_SECRET || process.env.JWT_SECRE || "daily-hunter-dev-secret";
 
 app.use(cors({
   origin: frontendOrigin === "*" ? true : frontendOrigin,
@@ -1005,9 +1009,21 @@ app.use((error, req, res, next) => {
   });
 });
 
-if (require.main === module) {
+async function startServer() {
+  if (!shouldUseLocalDatabase() && hasUsableDatabaseUrl()) {
+    const migrateJsonToPrisma = require("./scripts/migrate-json-to-prisma");
+    await migrateJsonToPrisma();
+  }
+
   app.listen(port, () => {
     console.log(`Daily Hunter API online na porta ${port}`);
+  });
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error("Falha ao iniciar o Daily Hunter API:", error);
+    process.exit(1);
   });
 }
 

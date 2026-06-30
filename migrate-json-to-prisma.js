@@ -186,7 +186,11 @@ async function migrate() {
   }
 }
 
-migrate().catch((error) => {
-  console.error("Erro ao migrar JSON para Prisma:", error);
-  process.exit(1);
-});
+if (require.main === module) {
+  migrate().catch((error) => {
+    console.error("Erro ao migrar JSON para Prisma:", error);
+    process.exit(1);
+  });
+}
+
+module.exports = migrate;
