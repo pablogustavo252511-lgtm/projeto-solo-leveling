@@ -1,5 +1,6 @@
 const prisma = require("../config/database");
 const HistoryService = require("./HistoryService");
+const { isMissionExpired } = require("./DateService");
 
 function calculateRank(level, xp) {
   if (level >= 20 || xp >= 10000) return "S";
@@ -46,8 +47,7 @@ function hoursFromNow(hours) {
 
 function isExpired(dateValue) {
   if (!dateValue) return false;
-  const dueDate = new Date(dateValue);
-  return Number.isFinite(dueDate.getTime()) && dueDate.getTime() < Date.now();
+  return isMissionExpired(dateValue);
 }
 
 function getXpForNextLevel(level) {

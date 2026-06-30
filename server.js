@@ -7,6 +7,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { parseMissionDueDate } = require("./services/DateService");
 
 function getDatabaseUrl() {
   return String(process.env.DATABASE_URL || "").trim();
@@ -313,6 +314,29 @@ function generatedAppPage(title, message) {
       }
     }
 
+    function missionDateLabel(value) {
+      if (!value) return "Sem prazo";
+      try {
+        const date = new Date(value);
+        const isLegacyMidnightUtc = date.getUTCHours() === 0
+          && date.getUTCMinutes() === 0
+          && date.getUTCSeconds() === 0
+          && date.getUTCMilliseconds() === 0;
+
+        if (isLegacyMidnightUtc) {
+          const parts = date.toISOString().slice(0, 10).split("-");
+          return parts[2] + "/" + parts[1] + "/" + parts[0];
+        }
+
+        return new Intl.DateTimeFormat("pt-BR", {
+          dateStyle: "short",
+          timeZone: "America/Sao_Paulo"
+        }).format(date);
+      } catch (error) {
+        return "Sem prazo";
+      }
+    }
+
     function api(path, options) {
       options = options || {};
       const headers = Object.assign({ "Content-Type": "application/json", Authorization: "Bearer " + token }, options.headers || {});
@@ -359,7 +383,7 @@ function generatedAppPage(title, message) {
       return '<article class="list-item">'
         + '<header><h3>' + html(item.title) + '</h3><span class="' + itemStatusClass(item.status) + '">' + html(item.status || "pendente") + '</span></header>'
         + '<p>' + html(item.description || "Sem descricao.") + '</p>'
-        + '<div class="chips"><span class="chip">' + html(item.difficulty || "normal") + '</span><span class="chip">' + Number(item.xp_reward || 0) + ' XP</span><span class="chip">' + dateLabel(item.due_date) + '</span></div>'
+        + '<div class="chips"><span class="chip">' + html(item.difficulty || "normal") + '</span><span class="chip">' + Number(item.xp_reward || 0) + ' XP</span><span class="chip">' + missionDateLabel(item.due_date) + '</span></div>'
         + '<div class="actions"><button class="button ok" data-action="complete-challenge" data-id="' + html(item.id) + '">Concluir</button><button class="ghost-button" data-action="delete-challenge" data-id="' + html(item.id) + '">Excluir</button></div>'
         + '</article>';
     }
@@ -854,7 +878,7 @@ function registerFallbackRoutes() {
       difficulty: req.body.difficulty || "normal",
       xp_reward: calculateMissionXp(req.body),
       status: "pendente",
-      due_date: req.body.due_date || now(),
+      due_date: parseMissionDueDate(req.body.due_date).toISOString(),
       created_at: now(),
       updated_at: now()
     };
@@ -873,7 +897,7 @@ function registerFallbackRoutes() {
       title: req.body.title !== undefined ? req.body.title.trim() : challenge.title,
       description: req.body.description !== undefined ? req.body.description : challenge.description,
       difficulty: req.body.difficulty !== undefined ? req.body.difficulty : challenge.difficulty,
-      due_date: req.body.due_date !== undefined ? req.body.due_date : challenge.due_date,
+      due_date: req.body.due_date !== undefined ? parseMissionDueDate(req.body.due_date).toISOString() : challenge.due_date,
       updated_at: now()
     });
     challenge.xp_reward = calculateMissionXp(challenge);

@@ -4,6 +4,7 @@ const PlayerService = require("./PlayerService");
 const BossService = require("./BossService");
 const MissionXpService = require("./MissionXpService");
 const SystemLockService = require("./SystemLockService");
+const { parseMissionDueDate } = require("./DateService");
 
 class ChallengeService {
   static async list(userId, status) {
@@ -33,7 +34,7 @@ class ChallengeService {
         difficulty: payload.difficulty || "normal",
         xp_reward: MissionXpService.calculate(payload),
         status: "pendente",
-        due_date: payload.due_date ? new Date(payload.due_date) : new Date()
+        due_date: parseMissionDueDate(payload.due_date)
       }
     });
 
@@ -71,7 +72,7 @@ class ChallengeService {
           })
         } : {}),
         ...(payload.status !== undefined ? { status: payload.status } : {}),
-        ...(payload.due_date !== undefined ? { due_date: new Date(payload.due_date) } : {})
+        ...(payload.due_date !== undefined ? { due_date: parseMissionDueDate(payload.due_date) } : {})
       }
     });
 

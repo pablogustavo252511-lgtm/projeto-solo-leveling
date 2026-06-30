@@ -90,6 +90,54 @@ function formatDate(value) {
   }).format(new Date(value));
 }
 
+function formatMissionDueDate(value) {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "-";
+
+  const isLegacyMidnightUtc = date.getUTCHours() === 0
+    && date.getUTCMinutes() === 0
+    && date.getUTCSeconds() === 0
+    && date.getUTCMilliseconds() === 0;
+
+  if (isLegacyMidnightUtc) {
+    const [year, month, day] = date.toISOString().slice(0, 10).split("-");
+    return `${day}/${month}/${year}`;
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeZone: "America/Sao_Paulo"
+  }).format(date);
+}
+
+function missionDueDateInputValue(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+
+  const isLegacyMidnightUtc = date.getUTCHours() === 0
+    && date.getUTCMinutes() === 0
+    && date.getUTCSeconds() === 0
+    && date.getUTCMilliseconds() === 0;
+
+  if (isLegacyMidnightUtc) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "America/Sao_Paulo"
+  }).formatToParts(date);
+
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}`;
+}
+
 function renderShell(activePage) {
   const user = getStoredUser();
   const name = user?.nome || "Hunter";

@@ -44,7 +44,7 @@ function renderChallenges(challenges) {
       </div>
       <h3>${challenge.title}</h3>
       <p>${challenge.description || "Sem descricao."}</p>
-      <small>Dificuldade: ${challenge.difficulty} | Vence: ${formatDate(challenge.due_date)}</small>
+      <small>Dificuldade: ${challenge.difficulty} | Vence: ${formatMissionDueDate(challenge.due_date)}</small>
       <div class="button-row">
         <button ${challenge.status !== "pendente" ? "disabled" : ""} onclick="completeChallenge('${challenge.id}')">Concluir</button>
         <button class="ghost-button" onclick="startEdit('${challenge.id}')">Editar</button>
@@ -63,7 +63,7 @@ function startEdit(challengeId) {
   form.title.value = challenge.title;
   form.description.value = challenge.description || "";
   form.difficulty.value = challenge.difficulty;
-  form.due_date.value = challenge.due_date ? challenge.due_date.slice(0, 10) : "";
+  form.due_date.value = missionDueDateInputValue(challenge.due_date);
   document.querySelector("[data-form-title]").textContent = "Editar desafio";
 }
 
