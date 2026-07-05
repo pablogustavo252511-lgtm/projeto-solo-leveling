@@ -1,5 +1,19 @@
 function getDatabaseUrl() {
-  return String(process.env.DATABASE_URL || "").trim();
+  let url = String(process.env.DATABASE_URL || "").trim();
+
+  if (url.startsWith("DATABASE_URL=")) {
+    url = url.slice("DATABASE_URL=".length).trim();
+  }
+
+  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
+    url = url.slice(1, -1).trim();
+  }
+
+  if (url.includes("clever-cloud.com") && !/[?&]sslmode=/.test(url)) {
+    url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
+  }
+
+  return url;
 }
 
 function hasUsableDatabaseUrl() {
@@ -36,6 +50,10 @@ function assertDatabaseReadyForPrisma() {
 }
 
 const useLocalDatabase = shouldUseLocalDatabase();
+const normalizedDatabaseUrl = getDatabaseUrl();
+if (normalizedDatabaseUrl) {
+  process.env.DATABASE_URL = normalizedDatabaseUrl;
+}
 
 let database;
 

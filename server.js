@@ -34,7 +34,21 @@ function parseMissionDueDate(value) {
 }
 
 function getDatabaseUrl() {
-  return String(process.env.DATABASE_URL || "").trim();
+  let url = String(process.env.DATABASE_URL || "").trim();
+
+  if (url.startsWith("DATABASE_URL=")) {
+    url = url.slice("DATABASE_URL=".length).trim();
+  }
+
+  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
+    url = url.slice(1, -1).trim();
+  }
+
+  if (url.includes("clever-cloud.com") && !/[?&]sslmode=/.test(url)) {
+    url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
+  }
+
+  return url;
 }
 
 function hasUsableDatabaseUrl() {
@@ -60,6 +74,11 @@ function shouldUseLocalDatabase() {
   }
 
   return !hasUsableDatabaseUrl();
+}
+
+const normalizedDatabaseUrl = getDatabaseUrl();
+if (normalizedDatabaseUrl) {
+  process.env.DATABASE_URL = normalizedDatabaseUrl;
 }
 
 const app = express();
@@ -663,7 +682,7 @@ function registerModularRoutes() {
     console.log("Rotas modulares carregadas.");
     return true;
   } catch (error) {
-    console.warn(`Rotas modulares indisponiveis: ${error.message}`);
+    console.error("Rotas modulares indisponiveis:", error.stack || error.message);
     return false;
   }
 }
