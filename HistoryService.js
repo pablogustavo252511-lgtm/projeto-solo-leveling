@@ -1,4 +1,4 @@
-const prisma = require("../config/database");
+const prisma = require("./database");
 
 class HistoryService {
   static async register(userId, action, description, xpEarned = 0) {
@@ -21,4 +21,3 @@ class HistoryService {
 }
 
 module.exports = HistoryService;
-

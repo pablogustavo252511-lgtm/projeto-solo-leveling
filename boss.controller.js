@@ -1,4 +1,4 @@
-const BossService = require("../services/BossService");
+const BossService = require("./BossService");
 
 class BossController {
   static async index(req, res, next) {

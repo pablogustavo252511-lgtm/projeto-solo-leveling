@@ -1,6 +1,6 @@
 const express = require("express");
-const ChallengeController = require("../controllers/challenge.controller");
-const authMiddleware = require("../middleware/authMiddleware");
+const ChallengeController = require("./challenge.controller");
+const authMiddleware = require("./authMiddleware");
 
 const router = express.Router();
 
@@ -13,4 +13,3 @@ router.patch("/challenges/:id/complete", ChallengeController.complete);
 router.patch("/challenges/:id/fail", ChallengeController.fail);
 
 module.exports = router;
-

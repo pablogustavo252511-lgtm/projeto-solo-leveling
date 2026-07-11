@@ -1,4 +1,4 @@
-const prisma = require("../config/database");
+const prisma = require("./database");
 const HistoryService = require("./HistoryService");
 const SystemLockService = require("./SystemLockService");
 

@@ -1,4 +1,4 @@
-const PlayerService = require("../services/PlayerService");
+const PlayerService = require("./PlayerService");
 
 class PlayerController {
   static async status(req, res, next) {
@@ -21,4 +21,3 @@ class PlayerController {
 }
 
 module.exports = PlayerController;
-

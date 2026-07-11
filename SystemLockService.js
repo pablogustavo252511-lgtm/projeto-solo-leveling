@@ -1,4 +1,4 @@
-const prisma = require("../config/database");
+const prisma = require("./database");
 const HistoryService = require("./HistoryService");
 
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;

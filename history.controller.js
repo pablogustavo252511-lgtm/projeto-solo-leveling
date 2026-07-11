@@ -1,4 +1,4 @@
-const HistoryService = require("../services/HistoryService");
+const HistoryService = require("./HistoryService");
 
 class HistoryController {
   static async index(req, res, next) {
@@ -12,4 +12,3 @@ class HistoryController {
 }
 
 module.exports = HistoryController;
-

@@ -1,4 +1,4 @@
-const prisma = require("../config/database");
+const prisma = require("./database");
 
 class RankingService {
   static async topHunters() {
@@ -37,4 +37,3 @@ class RankingService {
 }
 
 module.exports = RankingService;
-

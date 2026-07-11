@@ -13,31 +13,8 @@ const placeholders = [
 ];
 
 function hasUsableDatabaseUrl() {
-  const url = normalizeDatabaseUrl(process.env.DATABASE_URL);
+  const url = String(process.env.DATABASE_URL || "").trim();
   return Boolean(url) && !placeholders.some((placeholder) => url.includes(placeholder));
-}
-
-function normalizeDatabaseUrl(value) {
-  let url = String(value || "").trim();
-
-  if (url.startsWith("DATABASE_URL=")) {
-    url = url.slice("DATABASE_URL=".length).trim();
-  }
-
-  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
-    url = url.slice(1, -1).trim();
-  }
-
-  if (url.includes("clever-cloud.com") && !/[?&]sslmode=/.test(url)) {
-    url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
-  }
-
-  return url;
-}
-
-const normalizedDatabaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL);
-if (normalizedDatabaseUrl) {
-  process.env.DATABASE_URL = normalizedDatabaseUrl;
 }
 
 function shouldSkipMigration() {
@@ -45,7 +22,7 @@ function shouldSkipMigration() {
 }
 
 function readLocalJson() {
-  const filePath = path.join(__dirname, "..", "data", "dev-db.json");
+  const filePath = path.join(__dirname, "dev-db.json");
   if (!fs.existsSync(filePath)) {
     return null;
   }

@@ -1,4 +1,4 @@
-const RankingService = require("../services/RankingService");
+const RankingService = require("./RankingService");
 
 class RankingController {
   static async index(req, res, next) {
@@ -12,4 +12,3 @@ class RankingController {
 }
 
 module.exports = RankingController;
-

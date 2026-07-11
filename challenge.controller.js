@@ -1,4 +1,4 @@
-const ChallengeService = require("../services/ChallengeService");
+const ChallengeService = require("./ChallengeService");
 
 class ChallengeController {
   static async index(req, res, next) {
@@ -57,4 +57,3 @@ class ChallengeController {
 }
 
 module.exports = ChallengeController;
-

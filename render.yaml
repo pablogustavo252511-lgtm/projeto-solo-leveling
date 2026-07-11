@@ -4,9 +4,8 @@ services:
     runtime: node
     plan: free
     region: oregon
-    rootDir: solo-leveling-system/backend
-    buildCommand: npm install && npx prisma generate --schema prisma/schema.prisma
-    preDeployCommand: npx prisma db push --schema prisma/schema.prisma && npm run db:migrate-json
+    buildCommand: npm install && npm run prisma:generate
+    preDeployCommand: npm run prisma:push && npm run db:migrate-json
     startCommand: node server.js
     envVars:
       - key: USE_LOCAL_DB
