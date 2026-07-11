@@ -663,7 +663,7 @@ function registerModularRoutes() {
     console.log("Rotas modulares carregadas.");
     return true;
   } catch (error) {
-    console.warn(`Rotas modulares indisponiveis: ${error.message}`);
+    console.error("Falha ao carregar as rotas modulares/Prisma:", error);
     return false;
   }
 }
