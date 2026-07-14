@@ -34,7 +34,21 @@ function parseMissionDueDate(value) {
 }
 
 function getDatabaseUrl() {
-  return String(process.env.DATABASE_URL || "").trim();
+  let url = String(process.env.DATABASE_URL || "").trim();
+
+  if (url.startsWith("DATABASE_URL=")) {
+    url = url.slice("DATABASE_URL=".length).trim();
+  }
+
+  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
+    url = url.slice(1, -1).trim();
+  }
+
+  if (url.includes("clever-cloud.com") && !/[?&]sslmode=/.test(url)) {
+    url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
+  }
+
+  return url;
 }
 
 function hasUsableDatabaseUrl() {
@@ -60,6 +74,11 @@ function shouldUseLocalDatabase() {
   }
 
   return !hasUsableDatabaseUrl();
+}
+
+const normalizedDatabaseUrl = getDatabaseUrl();
+if (normalizedDatabaseUrl) {
+  process.env.DATABASE_URL = normalizedDatabaseUrl;
 }
 
 const app = express();
@@ -654,16 +673,16 @@ frontendPageFiles.forEach((fileName) => {
 
 function registerModularRoutes() {
   try {
-    app.use(require("./auth.routes"));
-    app.use(require("./challenge.routes"));
-    app.use(require("./player.routes"));
-    app.use(require("./boss.routes"));
-    app.use(require("./history.routes"));
-    app.use(require("./ranking.routes"));
+    app.use(require("./routes/auth.routes"));
+    app.use(require("./routes/challenge.routes"));
+    app.use(require("./routes/player.routes"));
+    app.use(require("./routes/boss.routes"));
+    app.use(require("./routes/history.routes"));
+    app.use(require("./routes/ranking.routes"));
     console.log("Rotas modulares carregadas.");
     return true;
   } catch (error) {
-    console.error("Falha ao carregar as rotas modulares/Prisma:", error);
+    console.error("Rotas modulares indisponiveis:", error.stack || error.message);
     return false;
   }
 }
@@ -1071,7 +1090,7 @@ app.use((error, req, res, next) => {
 
 async function startServer() {
   if (!shouldUseLocalDatabase() && hasUsableDatabaseUrl()) {
-    const migrateJsonToPrisma = require("./migrate-json-to-prisma");
+    const migrateJsonToPrisma = require("./scripts/migrate-json-to-prisma");
     await migrateJsonToPrisma();
   }
 
