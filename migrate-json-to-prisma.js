@@ -18,8 +18,32 @@ function hasUsableDatabaseUrl() {
 }
 
 function normalizeDatabaseUrl(value) {
-  let url = String(value || "").trim();
+  const candidates = [
+    value
+      || process.env.DATABASE_URL,
+    process.env.POSTGRESQL_ADDON_URI,
+    process.env.POSTGRES_URL,
+    process.env.DATABASE_PUBLIC_URL,
+    process.env.EXTERNAL_DATABASE_URL
+  ];
 
+  let url = candidates
+    .map((candidate) => normalizeDatabaseUrlCandidate(candidate))
+    .find((candidate) => candidate && !placeholders.some((placeholder) => candidate.includes(placeholder))) || "";
+
+  if (!url && process.env.POSTGRESQL_ADDON_HOST && process.env.POSTGRESQL_ADDON_DB) {
+    const user = encodeURIComponent(process.env.POSTGRESQL_ADDON_USER || "");
+    const password = encodeURIComponent(process.env.POSTGRESQL_ADDON_PASSWORD || "");
+    const host = process.env.POSTGRESQL_ADDON_HOST;
+    const port = process.env.POSTGRESQL_ADDON_PORT || "5432";
+    const database = process.env.POSTGRESQL_ADDON_DB;
+    url = `postgresql://${user}:${password}@${host}:${port}/${database}`;
+  }
+  return normalizeDatabaseUrlCandidate(url);
+}
+
+function normalizeDatabaseUrlCandidate(value) {
+  let url = String(value || "").trim();
   if (url.startsWith("DATABASE_URL=")) {
     url = url.slice("DATABASE_URL=".length).trim();
   }
