@@ -33,89 +33,24 @@ function parseMissionDueDate(value) {
     : parsed;
 }
 
-function getDatabaseUrl() {
-  const placeholders = [
-    "USER:PASSWORD",
-    "HOST:5432",
-    "DATABASE",
-    "cole_a_internal_database_url",
-    "sua_url_real_do_banco"
-  ];
-
-  const candidates = [
-    process.env.DATABASE_URL,
-    process.env.POSTGRESQL_ADDON_URI,
-    process.env.POSTGRES_URL,
-    process.env.DATABASE_PUBLIC_URL,
-    process.env.EXTERNAL_DATABASE_URL
-  ];
-
-  let url = candidates
-    .map((candidate) => normalizeDatabaseUrlCandidate(candidate))
-    .find((candidate) => candidate && !placeholders.some((placeholder) => candidate.includes(placeholder))) || "";
-
-  if (!url && process.env.POSTGRESQL_ADDON_HOST && process.env.POSTGRESQL_ADDON_DB) {
-    const user = encodeURIComponent(process.env.POSTGRESQL_ADDON_USER || "");
-    const password = encodeURIComponent(process.env.POSTGRESQL_ADDON_PASSWORD || "");
-    const host = process.env.POSTGRESQL_ADDON_HOST;
-    const port = process.env.POSTGRESQL_ADDON_PORT || "5432";
-    const database = process.env.POSTGRESQL_ADDON_DB;
-    url = `postgresql://${user}:${password}@${host}:${port}/${database}`;
-  }
-  url = normalizeDatabaseUrlCandidate(url);
-
-  return url;
-}
-
-function normalizeDatabaseUrlCandidate(value) {
-  let url = String(value || "").trim();
-  if (url.startsWith("DATABASE_URL=")) {
-    url = url.slice("DATABASE_URL=".length).trim();
-  }
-
-  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
-    url = url.slice(1, -1).trim();
-  }
-
-  if (url.includes("clever-cloud.com") && !/[?&]sslmode=/.test(url)) {
-    url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
-  }
-
-  return url;
-}
-
-function hasUsableDatabaseUrl() {
-  const url = getDatabaseUrl();
-  if (!url) return false;
-
-  return ![
-    "USER:PASSWORD",
-    "HOST:5432",
-    "DATABASE",
-    "cole_a_internal_database_url",
-    "sua_url_real_do_banco"
-  ].some((placeholder) => url.includes(placeholder));
-}
-
-function shouldUseLocalDatabase() {
-  if (process.env.USE_LOCAL_DB !== undefined) {
-    return process.env.USE_LOCAL_DB === "true";
-  }
-
-  if (process.env.RENDER) {
-    return false;
-  }
-
-  return !hasUsableDatabaseUrl();
-}
+const {
+  getDatabaseUrl,
+  hasUsableDatabaseUrl,
+  shouldUseLocalDatabase,
+  assertDatabaseReadyForPrisma
+} = require("./config/storageMode");
 
 const normalizedDatabaseUrl = getDatabaseUrl();
 if (normalizedDatabaseUrl) {
   process.env.DATABASE_URL = normalizedDatabaseUrl;
 }
 
+if (!shouldUseLocalDatabase() && !hasUsableDatabaseUrl()) {
+  assertDatabaseReadyForPrisma();
+}
+
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 const frontendOrigin = process.env.FRONTEND_ORIGIN || process.env.FRONTEND_ORIGI || "*";
 const frontendPathCandidates = [
   path.join(__dirname, "public"),
@@ -651,11 +586,13 @@ if (frontendPath) {
 }
 
 app.get("/api/health", (req, res) => {
+  const usingLocalDatabase = shouldUseLocalDatabase();
   res.json({
     name: "Solo Leveling - Daily Hunter System API",
     status: "online",
-    storage: shouldUseLocalDatabase() ? "local-json" : "postgres",
-    persistent_storage: !shouldUseLocalDatabase(),
+    storage: usingLocalDatabase ? "local-json" : "mysql",
+    database_provider: usingLocalDatabase ? "json" : "mysql",
+    persistent_storage: !usingLocalDatabase,
     database_configured: hasUsableDatabaseUrl()
   });
 });
@@ -704,6 +641,8 @@ frontendPageFiles.forEach((fileName) => {
   app.get(`/${fileName}`, (req, res) => sendFrontendFile(fileName, res));
 });
 
+let modularRoutesError = null;
+
 function registerModularRoutes() {
   try {
     app.use(require("./routes/auth.routes"));
@@ -715,6 +654,7 @@ function registerModularRoutes() {
     console.log("Rotas modulares carregadas.");
     return true;
   } catch (error) {
+    modularRoutesError = error;
     console.error("Rotas modulares indisponiveis:", error.stack || error.message);
     return false;
   }
@@ -1101,9 +1041,7 @@ function registerFallbackRoutes() {
 
 if (!registerModularRoutes()) {
   if (!shouldUseLocalDatabase()) {
-    throw new Error(
-      "Rotas modulares/Prisma falharam e USE_LOCAL_DB=false. Corrija DATABASE_URL/Prisma em vez de usar JSON local, para nao perder contas em deploys."
-    );
+    throw modularRoutesError || new Error("Falha ao carregar rotas modulares em producao.");
   }
 
   registerFallbackRoutes();
@@ -1122,13 +1060,8 @@ app.use((error, req, res, next) => {
 });
 
 async function startServer() {
-  if (!shouldUseLocalDatabase() && hasUsableDatabaseUrl()) {
-    const migrateJsonToPrisma = require("./scripts/migrate-json-to-prisma");
-    await migrateJsonToPrisma();
-  }
-
-  app.listen(port, () => {
-    console.log(`Daily Hunter API online na porta ${port}`);
+  app.listen(PORT, () => {
+    console.log(`Daily Hunter API online na porta ${PORT}`);
   });
 }
 

@@ -17,22 +17,28 @@ http://localhost:3000
 
 ## Banco de dados
 
-O arquivo `.env` ja existe para desenvolvimento:
+Use MySQL com Prisma. No Render, configure `DATABASE_URL` nas Environment Variables:
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
+DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/DATABASE"
 JWT_SECRET="daily-hunter-dev-secret-change-in-production"
+NODE_ENV=production
 PORT=3000
 FRONTEND_ORIGIN="*"
 USE_LOCAL_DB=false
 ```
 
-No Render, use a `Internal Database URL` real do banco Postgres em `DATABASE_URL`.
-Depois rode:
+No Render, use a URL real do MySQL do Clever Cloud em `DATABASE_URL`.
+O Build Command deve ser:
 
-```powershell
-npx.cmd prisma db push --schema prisma/schema.prisma
-npm.cmd run db:migrate-json
+```txt
+npm install && npx prisma generate && npx prisma migrate deploy
+```
+
+O Start Command deve ser:
+
+```txt
+npm start
 ```
 
 ## Validacoes executadas
