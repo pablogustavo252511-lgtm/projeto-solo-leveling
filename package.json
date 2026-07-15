@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "postinstall": "prisma generate --schema prisma/schema.prisma",
     "db:migrate-json": "node scripts/migrate-json-to-prisma.js",
     "prisma:generate": "npx prisma generate --schema prisma/schema.prisma",
     "prisma:push": "npx prisma db push --schema prisma/schema.prisma",

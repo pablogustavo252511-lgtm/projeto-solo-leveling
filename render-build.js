@@ -16,10 +16,10 @@ function run(command, args) {
   }
 }
 
-run("npm", ["install"]);
-run("npx", ["prisma", "generate", "--schema", "schema.prisma"]);
+run("npm", ["install", "--ignore-scripts"]);
+run("npx", ["prisma", "generate", "--schema", "prisma/schema.prisma"]);
 
 if (process.env.USE_LOCAL_DB !== "true" && process.env.DATABASE_URL) {
-  run("npx", ["prisma", "db", "push", "--schema", "schema.prisma"]);
+  run("npx", ["prisma", "db", "push", "--schema", "prisma/schema.prisma"]);
   run("npm", ["run", "db:migrate-json"]);
 }
