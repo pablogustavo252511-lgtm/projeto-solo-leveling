@@ -1,3 +1,7 @@
+const NODE_ENV = process.env.NODE_ENV || "development";
+const isProduction = NODE_ENV === "production" || Boolean(process.env.RENDER);
+const USE_LOCAL_DB = !isProduction && process.env.USE_LOCAL_DB === "true";
+
 const PLACEHOLDERS = [
   "USER:PASSWORD",
   "HOST:3306",
@@ -66,7 +70,7 @@ function hasUsableDatabaseUrl() {
 }
 
 function shouldUseLocalDatabase() {
-  if (process.env.NODE_ENV === "production" || process.env.RENDER) {
+  if (isProduction) {
     return false;
   }
 
@@ -88,7 +92,7 @@ function assertDatabaseReadyForPrisma() {
 
   if (!isMysqlDatabaseUrl(url)) {
     throw new Error(
-      "DATABASE_URL invalida para este backend. O Prisma esta configurado para MySQL, entao use uma URL mysql:// do Clever Cloud, nao postgresql://."
+      "DATABASE_URL invalida para este backend. O Prisma esta configurado para MySQL, entao use uma URL mysql:// do Clever Cloud."
     );
   }
 }
@@ -99,6 +103,10 @@ if (normalizedDatabaseUrl) {
 }
 
 module.exports = {
+  USE_LOCAL_DB,
+  NODE_ENV,
+  isProduction,
+  usePrisma: !shouldUseLocalDatabase(),
   getDatabaseUrl,
   hasUsableDatabaseUrl,
   shouldUseLocalDatabase,

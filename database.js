@@ -1,89 +1,106 @@
-function getDatabaseUrl() {
+function createInlineStorageMode() {
+  const NODE_ENV = process.env.NODE_ENV || "development";
+  const isProduction = NODE_ENV === "production" || Boolean(process.env.RENDER);
   const placeholders = [
     "USER:PASSWORD",
+    "HOST:3306",
     "HOST:5432",
     "DATABASE",
     "cole_a_internal_database_url",
     "sua_url_real_do_banco"
   ];
 
-  const candidates = [
-    process.env.DATABASE_URL,
-    process.env.POSTGRESQL_ADDON_URI,
-    process.env.POSTGRES_URL,
-    process.env.DATABASE_PUBLIC_URL,
-    process.env.EXTERNAL_DATABASE_URL
-  ];
-
-  let url = candidates
-    .map((candidate) => normalizeDatabaseUrlCandidate(candidate))
-    .find((candidate) => candidate && !placeholders.some((placeholder) => candidate.includes(placeholder))) || "";
-
-  if (!url && process.env.POSTGRESQL_ADDON_HOST && process.env.POSTGRESQL_ADDON_DB) {
-    const user = encodeURIComponent(process.env.POSTGRESQL_ADDON_USER || "");
-    const password = encodeURIComponent(process.env.POSTGRESQL_ADDON_PASSWORD || "");
-    const host = process.env.POSTGRESQL_ADDON_HOST;
-    const port = process.env.POSTGRESQL_ADDON_PORT || "5432";
-    const database = process.env.POSTGRESQL_ADDON_DB;
-    url = `postgresql://${user}:${password}@${host}:${port}/${database}`;
+  function normalizeDatabaseUrlCandidate(value) {
+    let url = String(value || "").trim();
+    if (url.startsWith("DATABASE_URL=")) url = url.slice("DATABASE_URL=".length).trim();
+    if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
+      url = url.slice(1, -1).trim();
+    }
+    return url.startsWith("mysql2://") ? `mysql://${url.slice("mysql2://".length)}` : url;
   }
-  url = normalizeDatabaseUrlCandidate(url);
 
-  return url;
+  function hasPlaceholder(value) {
+    return placeholders.some((placeholder) => String(value || "").includes(placeholder));
+  }
+
+  function getDatabaseUrl() {
+    const candidates = [
+      process.env.DATABASE_URL,
+      process.env.MYSQL_ADDON_URI,
+      process.env.MYSQL_URL,
+      process.env.CLEARDB_DATABASE_URL,
+      process.env.JAWSDB_URL,
+      process.env.DATABASE_PUBLIC_URL,
+      process.env.EXTERNAL_DATABASE_URL
+    ];
+
+    let url = candidates
+      .map((candidate) => normalizeDatabaseUrlCandidate(candidate))
+      .find((candidate) => candidate && !hasPlaceholder(candidate)) || "";
+
+    if (!url && process.env.MYSQL_ADDON_HOST && process.env.MYSQL_ADDON_DB) {
+      const user = encodeURIComponent(process.env.MYSQL_ADDON_USER || "");
+      const password = encodeURIComponent(process.env.MYSQL_ADDON_PASSWORD || "");
+      const host = process.env.MYSQL_ADDON_HOST;
+      const port = process.env.MYSQL_ADDON_PORT || "3306";
+      const database = process.env.MYSQL_ADDON_DB;
+      url = `mysql://${user}:${password}@${host}:${port}/${database}`;
+    }
+
+    return normalizeDatabaseUrlCandidate(url);
+  }
+
+  function hasUsableDatabaseUrl() {
+    const url = getDatabaseUrl();
+    return Boolean(url) && /^mysql:\/\//i.test(url) && !hasPlaceholder(url);
+  }
+
+  function shouldUseLocalDatabase() {
+    if (isProduction) return false;
+    if (process.env.USE_LOCAL_DB !== undefined) return process.env.USE_LOCAL_DB === "true";
+    return !hasUsableDatabaseUrl();
+  }
+
+  function assertDatabaseReadyForPrisma() {
+    const url = getDatabaseUrl();
+    if (!url || hasPlaceholder(url)) {
+      throw new Error("Configure DATABASE_URL no Render Environment Variables.");
+    }
+    if (!/^mysql:\/\//i.test(url)) {
+      throw new Error("DATABASE_URL invalida. Use uma URL mysql:// do Clever Cloud.");
+    }
+  }
+
+  return {
+    getDatabaseUrl,
+    shouldUseLocalDatabase,
+    assertDatabaseReadyForPrisma
+  };
 }
 
-function normalizeDatabaseUrlCandidate(value) {
-  let url = String(value || "").trim();
-  if (url.startsWith("DATABASE_URL=")) {
-    url = url.slice("DATABASE_URL=".length).trim();
-  }
+function loadStorageMode() {
+  try {
+    return require("./storageMode");
+  } catch (error) {
+    const isMissingStorageMode = error.code === "MODULE_NOT_FOUND"
+      && String(error.message || "").includes("./storageMode");
 
-  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
-    url = url.slice(1, -1).trim();
-  }
+    if (!isMissingStorageMode) throw error;
 
-  if (url.includes("clever-cloud.com") && !/[?&]sslmode=/.test(url)) {
-    url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
+    console.warn("config/storageMode.js nao foi encontrado no deploy. Usando configuracao interna de Prisma/MySQL.");
+    return createInlineStorageMode();
   }
-
-  return url;
 }
 
-function hasUsableDatabaseUrl() {
-  const url = getDatabaseUrl();
-  if (!url) return false;
-
-  return ![
-    "USER:PASSWORD",
-    "HOST:5432",
-    "DATABASE",
-    "cole_a_internal_database_url",
-    "sua_url_real_do_banco"
-  ].some((placeholder) => url.includes(placeholder));
-}
-
-function shouldUseLocalDatabase() {
-  if (process.env.USE_LOCAL_DB !== undefined) {
-    return process.env.USE_LOCAL_DB === "true";
-  }
-
-  if (process.env.RENDER) {
-    return false;
-  }
-
-  return !hasUsableDatabaseUrl();
-}
-
-function assertDatabaseReadyForPrisma() {
-  if (hasUsableDatabaseUrl()) return;
-
-  throw new Error(
-    "DATABASE_URL nao configurada corretamente. No Render, coloque a Internal Database URL real do seu Postgres ou use USE_LOCAL_DB=true apenas para desenvolvimento local."
-  );
-}
+const {
+  getDatabaseUrl,
+  shouldUseLocalDatabase,
+  assertDatabaseReadyForPrisma
+} = loadStorageMode();
 
 const useLocalDatabase = shouldUseLocalDatabase();
 const normalizedDatabaseUrl = getDatabaseUrl();
+
 if (normalizedDatabaseUrl) {
   process.env.DATABASE_URL = normalizedDatabaseUrl;
 }
@@ -91,7 +108,7 @@ if (normalizedDatabaseUrl) {
 let database;
 
 if (useLocalDatabase) {
-  console.warn("Banco local JSON ativo. Dados podem ser perdidos em deploys. Use apenas em desenvolvimento.");
+  console.warn("Banco local JSON ativo. Use apenas em desenvolvimento; em deploy os dados podem ser perdidos.");
   database = require("./localDatabase");
 } else {
   assertDatabaseReadyForPrisma();

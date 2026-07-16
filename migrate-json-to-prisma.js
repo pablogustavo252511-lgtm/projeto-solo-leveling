@@ -2,70 +2,37 @@ require("dotenv").config();
 
 const fs = require("fs");
 const path = require("path");
-const { PrismaClient } = require("@prisma/client");
 
-const placeholders = [
-  "USER:PASSWORD",
-  "HOST:5432",
-  "DATABASE",
-  "cole_a_internal_database_url",
-  "sua_url_real_do_banco"
-];
+function loadStorageMode() {
+  try {
+    return require("../config/storageMode");
+  } catch (error) {
+    const isMissingStorageMode = error.code === "MODULE_NOT_FOUND"
+      && String(error.message || "").includes("../config/storageMode");
 
-function hasUsableDatabaseUrl() {
-  const url = normalizeDatabaseUrl(process.env.DATABASE_URL);
-  return Boolean(url) && !placeholders.some((placeholder) => url.includes(placeholder));
+    if (!isMissingStorageMode) throw error;
+
+    return {
+      getDatabaseUrl: () => String(process.env.DATABASE_URL || "").trim(),
+      hasUsableDatabaseUrl: () => /^mysql:\/\//i.test(String(process.env.DATABASE_URL || "")),
+      shouldUseLocalDatabase: () => process.env.NODE_ENV !== "production" && process.env.USE_LOCAL_DB === "true"
+    };
+  }
 }
 
-function normalizeDatabaseUrl(value) {
-  const candidates = [
-    value
-      || process.env.DATABASE_URL,
-    process.env.POSTGRESQL_ADDON_URI,
-    process.env.POSTGRES_URL,
-    process.env.DATABASE_PUBLIC_URL,
-    process.env.EXTERNAL_DATABASE_URL
-  ];
+const {
+  getDatabaseUrl,
+  hasUsableDatabaseUrl,
+  shouldUseLocalDatabase
+} = loadStorageMode();
 
-  let url = candidates
-    .map((candidate) => normalizeDatabaseUrlCandidate(candidate))
-    .find((candidate) => candidate && !placeholders.some((placeholder) => candidate.includes(placeholder))) || "";
-
-  if (!url && process.env.POSTGRESQL_ADDON_HOST && process.env.POSTGRESQL_ADDON_DB) {
-    const user = encodeURIComponent(process.env.POSTGRESQL_ADDON_USER || "");
-    const password = encodeURIComponent(process.env.POSTGRESQL_ADDON_PASSWORD || "");
-    const host = process.env.POSTGRESQL_ADDON_HOST;
-    const port = process.env.POSTGRESQL_ADDON_PORT || "5432";
-    const database = process.env.POSTGRESQL_ADDON_DB;
-    url = `postgresql://${user}:${password}@${host}:${port}/${database}`;
-  }
-  return normalizeDatabaseUrlCandidate(url);
-}
-
-function normalizeDatabaseUrlCandidate(value) {
-  let url = String(value || "").trim();
-  if (url.startsWith("DATABASE_URL=")) {
-    url = url.slice("DATABASE_URL=".length).trim();
-  }
-
-  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
-    url = url.slice(1, -1).trim();
-  }
-
-  if (url.includes("clever-cloud.com") && !/[?&]sslmode=/.test(url)) {
-    url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
-  }
-
-  return url;
-}
-
-const normalizedDatabaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL);
+const normalizedDatabaseUrl = getDatabaseUrl();
 if (normalizedDatabaseUrl) {
   process.env.DATABASE_URL = normalizedDatabaseUrl;
 }
 
 function shouldSkipMigration() {
-  return process.env.USE_LOCAL_DB === "true" || !hasUsableDatabaseUrl();
+  return shouldUseLocalDatabase() || !hasUsableDatabaseUrl();
 }
 
 function readLocalJson() {
@@ -102,6 +69,7 @@ async function migrate() {
     return;
   }
 
+  const { PrismaClient } = require("@prisma/client");
   const prisma = new PrismaClient();
   const counts = { users: 0, challenges: 0, bosses: 0, history: 0 };
 
