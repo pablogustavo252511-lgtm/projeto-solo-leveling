@@ -17,10 +17,10 @@ http://localhost:3000
 
 ## Banco de dados
 
-Use MySQL com Prisma. No Render, configure `DATABASE_URL` nas Environment Variables:
+Use PostgreSQL com Prisma. No Render, configure `DATABASE_URL` nas Environment Variables:
 
 ```env
-DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/DATABASE"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
 JWT_SECRET="daily-hunter-dev-secret-change-in-production"
 NODE_ENV=production
 PORT=3000
@@ -28,7 +28,7 @@ FRONTEND_ORIGIN="*"
 USE_LOCAL_DB=false
 ```
 
-No Render, use a URL real do MySQL do Clever Cloud em `DATABASE_URL`.
+No Render, use a Connection URI real do PostgreSQL do Clever Cloud em `DATABASE_URL`.
 O Build Command deve ser:
 
 ```txt

@@ -16,14 +16,14 @@ function loadStorageMode() {
       let url = String(value || "").trim();
       const keyValueMatch = url.match(/^[A-Z0-9_]+\s*=\s*(.+)$/i);
       if (keyValueMatch) url = keyValueMatch[1].trim();
-      const mysqlMatch = url.match(/mysql2?:\/\/[^\s"'`]+/i);
-      if (mysqlMatch) url = mysqlMatch[0];
-      return url.startsWith("mysql2://") ? `mysql://${url.slice("mysql2://".length)}` : url;
+      const postgresMatch = url.match(/postgres(?:ql)?:\/\/[^\s"'`]+/i);
+      if (postgresMatch) url = postgresMatch[0];
+      return url;
     };
 
     return {
       getDatabaseUrl: () => normalizeDatabaseUrl(process.env.DATABASE_URL),
-      hasUsableDatabaseUrl: () => /^mysql:\/\//i.test(normalizeDatabaseUrl(process.env.DATABASE_URL)),
+      hasUsableDatabaseUrl: () => /^(postgresql|postgres):\/\//i.test(normalizeDatabaseUrl(process.env.DATABASE_URL)),
       shouldUseLocalDatabase: () => process.env.NODE_ENV !== "production" && process.env.USE_LOCAL_DB === "true"
     };
   }

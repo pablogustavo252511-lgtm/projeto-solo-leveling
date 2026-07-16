@@ -38,7 +38,6 @@ function createInlineStorageMode() {
   const isProduction = NODE_ENV === "production" || Boolean(process.env.RENDER);
   const placeholders = [
     "USER:PASSWORD",
-    "HOST:3306",
     "HOST:5432",
     "DATABASE",
     "cole_a_internal_database_url",
@@ -61,12 +60,8 @@ function createInlineStorageMode() {
       url = url.slice(1, -1).trim();
     }
 
-    const mysqlMatch = url.match(/mysql2?:\/\/[^\s"'`]+/i);
-    if (mysqlMatch) url = mysqlMatch[0];
-
-    if (url.startsWith("mysql2://")) {
-      url = `mysql://${url.slice("mysql2://".length)}`;
-    }
+    const postgresMatch = url.match(/postgres(?:ql)?:\/\/[^\s"'`]+/i);
+    if (postgresMatch) url = postgresMatch[0];
 
     return url.replace(/[;,]+$/, "");
   }
@@ -79,9 +74,9 @@ function createInlineStorageMode() {
     const DATABASE_URL = process.env.DATABASE_URL;
     const candidates = [
       DATABASE_URL,
-      process.env.MYSQL_ADDON_URI,
-      process.env.MYSQL_URL,
-      process.env.CLEARDB_DATABASE_URL,
+      process.env.POSTGRESQL_ADDON_URI,
+      process.env.POSTGRES_ADDON_URI,
+      process.env.POSTGRES_URL,
       process.env.JAWSDB_URL,
       process.env.DATABASE_PUBLIC_URL,
       process.env.EXTERNAL_DATABASE_URL
@@ -91,21 +86,32 @@ function createInlineStorageMode() {
       .map((candidate) => normalizeDatabaseUrlCandidate(candidate))
       .find((candidate) => candidate && !hasPlaceholder(candidate)) || "";
 
-    if (!url && process.env.MYSQL_ADDON_HOST && process.env.MYSQL_ADDON_DB) {
-      const user = encodeURIComponent(process.env.MYSQL_ADDON_USER || "");
-      const password = encodeURIComponent(process.env.MYSQL_ADDON_PASSWORD || "");
-      const host = process.env.MYSQL_ADDON_HOST;
-      const port = process.env.MYSQL_ADDON_PORT || "3306";
-      const database = process.env.MYSQL_ADDON_DB;
-      url = `mysql://${user}:${password}@${host}:${port}/${database}`;
+    if (!url) {
+      const host = process.env.POSTGRESQL_ADDON_HOST || process.env.POSTGRES_HOST || process.env.PGHOST;
+      const database = process.env.POSTGRESQL_ADDON_DB || process.env.POSTGRES_DB || process.env.PGDATABASE;
+
+      if (host && database) {
+        const user = encodeURIComponent(
+          process.env.POSTGRESQL_ADDON_USER || process.env.POSTGRES_USER || process.env.PGUSER || ""
+        );
+        const password = encodeURIComponent(
+          process.env.POSTGRESQL_ADDON_PASSWORD || process.env.POSTGRES_PASSWORD || process.env.PGPASSWORD || ""
+        );
+        const port = process.env.POSTGRESQL_ADDON_PORT || process.env.POSTGRES_PORT || process.env.PGPORT || "5432";
+        url = `postgresql://${user}:${password}@${host}:${port}/${database}`;
+      }
     }
 
     return normalizeDatabaseUrlCandidate(url);
   }
 
+  function isPostgresDatabaseUrl(url) {
+    return /^(postgresql|postgres):\/\//i.test(String(url || ""));
+  }
+
   function hasUsableDatabaseUrl() {
     const url = getDatabaseUrl();
-    return Boolean(url) && /^mysql:\/\//i.test(url) && !hasPlaceholder(url);
+    return Boolean(url) && isPostgresDatabaseUrl(url) && !hasPlaceholder(url);
   }
 
   function shouldUseLocalDatabase() {
@@ -116,11 +122,8 @@ function createInlineStorageMode() {
 
   function assertDatabaseReadyForPrisma() {
     const url = getDatabaseUrl();
-    if (!url || hasPlaceholder(url)) {
-      throw new Error("DATABASE_URL nao configurada corretamente. Va no Render > Environment e adicione a URL MySQL do Clever Cloud.");
-    }
-    if (!/^mysql:\/\//i.test(url)) {
-      throw new Error("DATABASE_URL nao configurada corretamente. Va no Render > Environment e adicione a URL MySQL do Clever Cloud.");
+    if (!url || hasPlaceholder(url) || !isPostgresDatabaseUrl(url)) {
+      throw new Error("DATABASE_URL invalida. Use a Connection URI PostgreSQL do Clever Cloud.");
     }
   }
 
@@ -141,7 +144,7 @@ function loadStorageMode() {
 
     if (!isMissingStorageMode) throw error;
 
-    console.warn("config/storageMode.js nao foi encontrado no deploy. Usando configuracao interna de Prisma/MySQL.");
+    console.warn("config/storageMode.js nao foi encontrado no deploy. Usando configuracao interna de Prisma/PostgreSQL.");
     return createInlineStorageMode();
   }
 }
@@ -703,8 +706,8 @@ app.get("/api/health", (req, res) => {
   res.json({
     name: "Solo Leveling - Daily Hunter System API",
     status: "online",
-    storage: usingLocalDatabase ? "local-json" : "mysql",
-    database_provider: usingLocalDatabase ? "json" : "mysql",
+    storage: usingLocalDatabase ? "local-json" : "postgresql",
+    database_provider: usingLocalDatabase ? "json" : "postgresql",
     persistent_storage: !usingLocalDatabase,
     database_configured: hasUsableDatabaseUrl()
   });
