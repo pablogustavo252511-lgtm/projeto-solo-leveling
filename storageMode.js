@@ -13,20 +13,33 @@ const PLACEHOLDERS = [
 
 function normalizeDatabaseUrlCandidate(value) {
   let url = String(value || "").trim();
+  if (!url) return "";
 
-  if (url.startsWith("DATABASE_URL=")) {
-    url = url.slice("DATABASE_URL=".length).trim();
+  url = url.replace(/^\uFEFF/, "").trim();
+
+  const keyValueMatch = url.match(/^[A-Z0-9_]+\s*=\s*(.+)$/i);
+  if (keyValueMatch) {
+    url = keyValueMatch[1].trim();
   }
 
-  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
+  if (
+    (url.startsWith('"') && url.endsWith('"'))
+    || (url.startsWith("'") && url.endsWith("'"))
+    || (url.startsWith("`") && url.endsWith("`"))
+  ) {
     url = url.slice(1, -1).trim();
+  }
+
+  const mysqlMatch = url.match(/mysql2?:\/\/[^\s"'`]+/i);
+  if (mysqlMatch) {
+    url = mysqlMatch[0];
   }
 
   if (url.startsWith("mysql2://")) {
     url = `mysql://${url.slice("mysql2://".length)}`;
   }
 
-  return url;
+  return url.replace(/[;,]+$/, "");
 }
 
 function hasPlaceholder(value) {
@@ -34,8 +47,9 @@ function hasPlaceholder(value) {
 }
 
 function getDatabaseUrl() {
+  const DATABASE_URL = process.env.DATABASE_URL;
   const candidates = [
-    process.env.DATABASE_URL,
+    DATABASE_URL,
     process.env.MYSQL_ADDON_URI,
     process.env.MYSQL_URL,
     process.env.CLEARDB_DATABASE_URL,
@@ -86,13 +100,13 @@ function assertDatabaseReadyForPrisma() {
 
   if (!url || hasPlaceholder(url)) {
     throw new Error(
-      "Configure DATABASE_URL no Render Environment Variables. Use a URL MySQL do Clever Cloud no formato mysql://USER:PASSWORD@HOST:PORT/DATABASE e USE_LOCAL_DB=false."
+      "DATABASE_URL nao configurada corretamente. Va no Render > Environment e adicione a URL MySQL do Clever Cloud."
     );
   }
 
   if (!isMysqlDatabaseUrl(url)) {
     throw new Error(
-      "DATABASE_URL invalida para este backend. O Prisma esta configurado para MySQL, entao use uma URL mysql:// do Clever Cloud."
+      "DATABASE_URL nao configurada corretamente. Va no Render > Environment e adicione a URL MySQL do Clever Cloud."
     );
   }
 }
