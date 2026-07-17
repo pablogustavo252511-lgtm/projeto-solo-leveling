@@ -36,6 +36,7 @@ function parseMissionDueDate(value) {
 function createInlineStorageMode() {
   const NODE_ENV = process.env.NODE_ENV || "development";
   const isProduction = NODE_ENV === "production" || Boolean(process.env.RENDER);
+  let loggedDatabaseInfo = false;
   const placeholders = [
     "USER:PASSWORD",
     "HOST:5432",
@@ -109,9 +110,58 @@ function createInlineStorageMode() {
     return /^(postgresql|postgres):\/\//i.test(String(url || ""));
   }
 
+  function parseDatabaseUrl(url) {
+    try {
+      return new URL(url);
+    } catch {
+      throw new Error("DATABASE_URL possui formato invalido.");
+    }
+  }
+
+  function getDatabaseName(parsedUrl) {
+    return decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, ""));
+  }
+
+  function validateDatabaseUrl(url) {
+    if (!url) {
+      throw new Error("DATABASE_URL nao configurada. Adicione a Connection URI do Clever Cloud no Render.");
+    }
+
+    const parsedUrl = parseDatabaseUrl(url);
+
+    if (parsedUrl.protocol !== "postgresql:" && parsedUrl.protocol !== "postgres:") {
+      throw new Error("DATABASE_URL deve utilizar PostgreSQL.");
+    }
+
+    const databaseName = getDatabaseName(parsedUrl);
+    if (!databaseName || databaseName === "postgres") {
+      throw new Error(
+        "DATABASE_URL esta apontando para o banco 'postgres'. Use o Database Name especifico fornecido pelo Clever Cloud."
+      );
+    }
+
+    if (!loggedDatabaseInfo) {
+      console.log("PostgreSQL configurado:", {
+        host: parsedUrl.hostname,
+        port: parsedUrl.port,
+        database: databaseName
+      });
+      loggedDatabaseInfo = true;
+    }
+
+    return { parsedUrl, databaseName };
+  }
+
   function hasUsableDatabaseUrl() {
     const url = getDatabaseUrl();
-    return Boolean(url) && isPostgresDatabaseUrl(url) && !hasPlaceholder(url);
+    if (!url || hasPlaceholder(url) || !isPostgresDatabaseUrl(url)) return false;
+
+    try {
+      validateDatabaseUrl(url);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   function shouldUseLocalDatabase() {
@@ -122,16 +172,19 @@ function createInlineStorageMode() {
 
   function assertDatabaseReadyForPrisma() {
     const url = getDatabaseUrl();
-    if (!url || hasPlaceholder(url) || !isPostgresDatabaseUrl(url)) {
+    if (hasPlaceholder(url)) {
       throw new Error("DATABASE_URL invalida. Use a Connection URI PostgreSQL do Clever Cloud.");
     }
+
+    validateDatabaseUrl(url);
   }
 
   return {
     getDatabaseUrl,
     hasUsableDatabaseUrl,
     shouldUseLocalDatabase,
-    assertDatabaseReadyForPrisma
+    assertDatabaseReadyForPrisma,
+    validateDatabaseUrl
   };
 }
 
@@ -1176,14 +1229,37 @@ app.use((error, req, res, next) => {
 });
 
 async function startServer() {
-  app.listen(PORT, () => {
+  const prisma = shouldUseLocalDatabase() ? null : require("./config/database");
+
+  if (prisma && typeof prisma.$connect === "function") {
+    try {
+      await prisma.$connect();
+      console.log("Conexao com PostgreSQL estabelecida.");
+    } catch (error) {
+      console.error("Falha ao conectar ao PostgreSQL. Confirme o Database Name e a Connection URI no Render.");
+      throw error;
+    }
+  }
+
+  const server = app.listen(PORT, () => {
     console.log(`Daily Hunter API online na porta ${PORT}`);
   });
+
+  async function shutdown() {
+    if (prisma && typeof prisma.$disconnect === "function") {
+      await prisma.$disconnect();
+    }
+
+    server.close(() => process.exit(0));
+  }
+
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 }
 
 if (require.main === module) {
   startServer().catch((error) => {
-    console.error("Falha ao iniciar o Daily Hunter API:", error);
+    console.error("Falha ao iniciar o Daily Hunter API:", error.message || error);
     process.exit(1);
   });
 }

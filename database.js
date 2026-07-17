@@ -1,6 +1,7 @@
 function createInlineStorageMode() {
   const NODE_ENV = process.env.NODE_ENV || "development";
   const isProduction = NODE_ENV === "production" || Boolean(process.env.RENDER);
+  let loggedDatabaseInfo = false;
   const placeholders = [
     "USER:PASSWORD",
     "HOST:5432",
@@ -72,7 +73,14 @@ function createInlineStorageMode() {
 
   function hasUsableDatabaseUrl() {
     const url = getDatabaseUrl();
-    return Boolean(url) && /^(postgresql|postgres):\/\//i.test(url) && !hasPlaceholder(url);
+    if (!url || hasPlaceholder(url) || !/^(postgresql|postgres):\/\//i.test(url)) return false;
+
+    try {
+      validateDatabaseUrl(url);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   function shouldUseLocalDatabase() {
@@ -83,15 +91,53 @@ function createInlineStorageMode() {
 
   function assertDatabaseReadyForPrisma() {
     const url = getDatabaseUrl();
-    if (!url || hasPlaceholder(url) || !/^(postgresql|postgres):\/\//i.test(url)) {
+    if (hasPlaceholder(url)) {
       throw new Error("DATABASE_URL invalida. Use a Connection URI PostgreSQL do Clever Cloud.");
     }
+
+    validateDatabaseUrl(url);
+  }
+
+  function validateDatabaseUrl(url) {
+    if (!url) {
+      throw new Error("DATABASE_URL nao configurada. Adicione a Connection URI do Clever Cloud no Render.");
+    }
+
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      throw new Error("DATABASE_URL possui formato invalido.");
+    }
+
+    if (parsedUrl.protocol !== "postgresql:" && parsedUrl.protocol !== "postgres:") {
+      throw new Error("DATABASE_URL deve utilizar PostgreSQL.");
+    }
+
+    const databaseName = decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, ""));
+    if (!databaseName || databaseName === "postgres") {
+      throw new Error(
+        "DATABASE_URL esta apontando para o banco 'postgres'. Use o Database Name especifico fornecido pelo Clever Cloud."
+      );
+    }
+
+    if (!loggedDatabaseInfo) {
+      console.log("PostgreSQL configurado:", {
+        host: parsedUrl.hostname,
+        port: parsedUrl.port,
+        database: databaseName
+      });
+      loggedDatabaseInfo = true;
+    }
+
+    return { parsedUrl, databaseName };
   }
 
   return {
     getDatabaseUrl,
     shouldUseLocalDatabase,
-    assertDatabaseReadyForPrisma
+    assertDatabaseReadyForPrisma,
+    validateDatabaseUrl
   };
 }
 

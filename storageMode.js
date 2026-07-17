@@ -1,6 +1,7 @@
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production" || Boolean(process.env.RENDER);
 const USE_LOCAL_DB = !isProduction && process.env.USE_LOCAL_DB === "true";
+let loggedDatabaseInfo = false;
 
 const PLACEHOLDERS = [
   "USER:PASSWORD",
@@ -80,9 +81,60 @@ function isPostgresDatabaseUrl(url) {
   return /^(postgresql|postgres):\/\//i.test(String(url || ""));
 }
 
+function parseDatabaseUrl(url) {
+  try {
+    return new URL(url);
+  } catch {
+    throw new Error("DATABASE_URL possui formato invalido.");
+  }
+}
+
+function getDatabaseName(parsedUrl) {
+  return decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, ""));
+}
+
+function validateDatabaseUrl(url) {
+  if (!url) {
+    throw new Error(
+      "DATABASE_URL nao configurada. Adicione a Connection URI do Clever Cloud no Render."
+    );
+  }
+
+  const parsedUrl = parseDatabaseUrl(url);
+
+  if (parsedUrl.protocol !== "postgresql:" && parsedUrl.protocol !== "postgres:") {
+    throw new Error("DATABASE_URL deve utilizar PostgreSQL.");
+  }
+
+  const databaseName = getDatabaseName(parsedUrl);
+  if (!databaseName || databaseName === "postgres") {
+    throw new Error(
+      "DATABASE_URL esta apontando para o banco 'postgres'. Use o Database Name especifico fornecido pelo Clever Cloud."
+    );
+  }
+
+  if (!loggedDatabaseInfo) {
+    console.log("PostgreSQL configurado:", {
+      host: parsedUrl.hostname,
+      port: parsedUrl.port,
+      database: databaseName
+    });
+    loggedDatabaseInfo = true;
+  }
+
+  return { parsedUrl, databaseName };
+}
+
 function hasUsableDatabaseUrl() {
   const url = getDatabaseUrl();
-  return Boolean(url) && isPostgresDatabaseUrl(url) && !hasPlaceholder(url);
+  if (!url || hasPlaceholder(url) || !isPostgresDatabaseUrl(url)) return false;
+
+  try {
+    validateDatabaseUrl(url);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function shouldUseLocalDatabase() {
@@ -100,11 +152,13 @@ function shouldUseLocalDatabase() {
 function assertDatabaseReadyForPrisma() {
   const url = getDatabaseUrl();
 
-  if (!url || hasPlaceholder(url) || !isPostgresDatabaseUrl(url)) {
+  if (hasPlaceholder(url)) {
     throw new Error(
       "DATABASE_URL invalida. Use a Connection URI PostgreSQL do Clever Cloud."
     );
   }
+
+  validateDatabaseUrl(url);
 }
 
 const normalizedDatabaseUrl = getDatabaseUrl();
@@ -120,5 +174,6 @@ module.exports = {
   getDatabaseUrl,
   hasUsableDatabaseUrl,
   shouldUseLocalDatabase,
-  assertDatabaseReadyForPrisma
+  assertDatabaseReadyForPrisma,
+  validateDatabaseUrl
 };
