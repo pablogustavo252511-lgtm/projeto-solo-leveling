@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Daily Hunter</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div data-shell></div>
+  <main class="app-main">
+    <section class="page-title">
+      <span class="eyebrow">Dashboard</span>
+      <h1 data-player-name>Hunter</h1>
+      <p>Status geral do jogador e missoes do dia.</p>
+    </section>
+
+    <p data-message class="system-message"></p>
+
+    <section class="stats-grid">
+      <article class="stat-card"><span>Nivel</span><strong data-level>1</strong></article>
+      <article class="stat-card"><span>XP Atual</span><strong data-xp>0</strong></article>
+      <article class="stat-card"><span>Proximo Nivel</span><strong data-next-xp>100</strong></article>
+      <article class="stat-card"><span>Rank</span><strong data-rank>E</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <h2>Barra de XP</h2>
+        <span data-progress-label>0 / 100 XP</span>
+      </div>
+      <div class="xp-bar"><span data-progress></span></div>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="section-heading">
+          <h2>Missoes do dia</h2>
+          <a class="text-link" href="desafios.html">Gerenciar</a>
+        </div>
+        <div data-challenges class="stack-list"></div>
+      </article>
+
+      <article class="panel boss-preview">
+        <div class="section-heading">
+          <h2>Boss ativo</h2>
+          <a class="text-link" href="boss.html">Abrir</a>
+        </div>
+        <div data-boss-preview class="stack-list"></div>
+      </article>
+
+      <article class="panel">
+        <div class="section-heading">
+          <h2>Historico recente</h2>
+          <a class="text-link" href="perfil.html">Ver tudo</a>
+        </div>
+        <ul data-history-preview class="history-list"></ul>
+      </article>
+    </section>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
+

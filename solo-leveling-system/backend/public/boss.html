@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boss - Daily Hunter</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div data-shell></div>
+  <main class="app-main">
+    <section class="page-title">
+      <span class="eyebrow">Penalidade</span>
+      <h1>Sistema de Boss</h1>
+      <p>Bosses surgem quando a disciplina falha. Derrote para recuperar progresso.</p>
+    </section>
+
+    <p data-message class="system-message"></p>
+
+    <section class="panel">
+      <div class="section-heading">
+        <h2>Bosses</h2>
+        <button data-spawn-boss>Spawnar boss</button>
+      </div>
+      <div data-boss-list class="card-grid"></div>
+    </section>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/boss.js"></script>
+</body>
+</html>
+

@@ -1,28 +1,10 @@
 {
-  "name": "solo-leveling-daily-hunter-backend",
+  "name": "projeto-solo-leveling-root",
   "version": "1.0.0",
-  "description": "Backend do Solo Leveling - Daily Hunter System",
-  "main": "server.js",
+  "private": true,
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "db:migrate-json": "node scripts/migrate-json-to-prisma.js",
-    "prisma:generate": "npx prisma generate --schema prisma/schema.prisma",
-    "prisma:push": "npx prisma db push --schema prisma/schema.prisma",
-    "prisma:migrate": "npx prisma migrate dev --schema prisma/schema.prisma",
-    "prisma:studio": "npx prisma studio --schema prisma/schema.prisma"
-  },
-  "dependencies": {
-    "@prisma/client": "^6.19.3",
-    "bcrypt": "^5.1.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "prisma": "^6.19.3"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.9"
+    "build": "node scripts/render-build.js",
+    "start": "node scripts/render-start.js"
   },
   "engines": {
     "node": "20.x"
